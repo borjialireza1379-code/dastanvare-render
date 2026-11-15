@@ -17,7 +17,7 @@ const VOICE = "v48/vo.wav";
 const MIX = "v48/mix-norm.wav"; // final mix (videos/48/build-audio.mjs + tools/doc-mix.mjs); replaces VOICE
 
 // pictures the user makes with GPT (public/v48/gpt/<name>.jpg); flip to true when a file arrives
-const GPT = { blanket: false, shopkeeper: false, burger: false };
+const GPT = { blanket: true, shopkeeper: true, burger: false }; // burger: the user kept the code-drawn one
 const gptSrc = (n: keyof typeof GPT) => `v48/gpt/${n}.jpg`;
 const Pic: React.FC<{ src: string; fx?: number; fy?: number; z?: number; filter?: string }> = ({ src, fx = 0.5, fy = 0.5, z = 1, filter }) => (
   <Img src={staticFile(src)} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: `${fx * 100}% ${fy * 100}%`, transform: `scale(${z})`, transformOrigin: `${fx * 100}% ${fy * 100}%`, filter }} />
@@ -119,11 +119,17 @@ const R1: React.FC<{ t: number }> = ({ t }) => {
   const tEta = wt(2, "دو") - 0.12;
   return (
     <AbsoluteFill>
-      <AbsoluteFill style={{ transform: `scale(${z})`, transformOrigin: "50% 58%" }}>
-        {GPT.blanket ? <Pic src={gptSrc("blanket")} fy={0.55} filter="contrast(1.06) saturate(1.1)" /> : <BedroomArt t={t} />}
+      <AbsoluteFill style={{ transform: `scale(${z})`, transformOrigin: "55% 51%" }}>
+        {GPT.blanket ? <Pic src={gptSrc("blanket")} filter="contrast(1.08) saturate(1.1) brightness(1.08)" /> : <BedroomArt t={t} />}
       </AbsoluteFill>
       <AbsoluteFill style={{ background: "linear-gradient(180deg, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.25) 26%, rgba(0,0,0,0) 45%, rgba(0,0,0,0) 66%, rgba(0,0,0,0.7) 84%, rgba(0,0,0,0.85) 100%)" }} />
-      <Ring t={t} t0={wt(2, "پتوئه") - 0.05} x={560} y={1110} rx={330} ry={210} label="موقعیت فعلی" lx={90} ly={830} />
+      {/* the phone glow under the duvet (photo: phone at ≈ 600, 990) */}
+      {GPT.blanket && <div style={{ position: "absolute", left: 600 - 260, top: 990 - 260, width: 520, height: 520, borderRadius: "50%", background: "radial-gradient(circle, rgba(190,220,255,0.28) 0%, rgba(190,220,255,0) 65%)", opacity: 0.7 + 0.3 * Math.sin(t * 5), mixBlendMode: "screen" }} />}
+      {GPT.blanket ? (
+        <Ring t={t} t0={wt(2, "پتوئه") - 0.05} x={610} y={950} rx={300} ry={200} label="موقعیت فعلی" lx={60} ly={690} />
+      ) : (
+        <Ring t={t} t0={wt(2, "پتوئه") - 0.05} x={560} y={1110} rx={330} ry={210} label="موقعیت فعلی" lx={90} ly={830} />
+      )}
       <NavCard t={t} t0={tEta} y={400} />
       <LieStamp t={t} t0={stampAt(1)} x={300} y={525} size={0.82} />
       <LieBadge t={t} t0={cutAt(1)} n={1} />
@@ -136,20 +142,34 @@ const Shop: React.FC<{ t: number }> = ({ t }) => {
   const A = cutAt(3);
   const tFaghat = wt(4, "فقط"), tTag = wt(4, "آخرش") - 0.05, tSms = wt(4, "قسط") - 0.22;
   const dim = eio((t - tFaghat) / 0.5);
-  const z = 1.03 + 0.06 * eio((t - A) / 2) + 0.1 * dim;
+  const z = 1 + 0.04 * eio((t - A) / 2) + 0.1 * dim;
   const [sx, sy] = shakeXY(t, wi(3, 0) + 0.05, 10, 8);
+  const P = GPT.shopkeeper;
+  // photo: his head starts at y≈425 → shifted down so the bubble fits above it (head top ≈ 526), text stays off his face
   return (
     <AbsoluteFill>
-      <AbsoluteFill style={{ transform: `translate(${sx}px, ${sy}px) scale(${z})`, transformOrigin: "50% 45%", filter: dim > 0.01 ? `brightness(${1 - 0.5 * dim}) blur(${6 * dim}px)` : undefined }}>
-        {GPT.shopkeeper ? <Pic src={gptSrc("shopkeeper")} fy={0.4} filter="contrast(1.06) saturate(1.12)" /> : <ShopArt t={t} />}
+      <AbsoluteFill style={{ transform: `translate(${sx}px, ${sy}px) scale(${z})`, transformOrigin: "50% 30%", filter: dim > 0.01 ? `brightness(${1 - 0.5 * dim}) blur(${6 * dim}px)` : undefined }}>
+        {P ? (
+          <AbsoluteFill style={{ transform: "translateY(80px) scale(1.05)", transformOrigin: "50% 0%" }}>
+            <Pic src={gptSrc("shopkeeper")} filter="contrast(1.06) saturate(1.12)" />
+          </AbsoluteFill>
+        ) : (
+          <ShopArt t={t} />
+        )}
       </AbsoluteFill>
-      <AbsoluteFill style={{ background: "linear-gradient(180deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.15) 22%, rgba(0,0,0,0) 40%, rgba(0,0,0,0) 64%, rgba(0,0,0,0.65) 82%, rgba(0,0,0,0.85) 100%)" }} />
-      <Bubble t={t} words={lineWords(3)} x={540} y={400} size={118} theme="yel" tail={0.62} rot={-3} wob={2.5} o={1 - 0.6 * dim} />
-      {/* «آره» → the fine print */}
-      {t >= wt(4, "آره") && (
-        <div style={{ position: "absolute", left: 150, top: 640, transform: `rotate(-4deg) scale(${back((t - wt(4, "آره")) / 0.3, 2)})`, opacity: clamp((t - wt(4, "آره")) / 0.08) * (1 - 0.6 * dim), background: "#fff", color: INK, font: `800 34px "RVazir"`, padding: "4px 20px 10px", direction: "rtl", boxShadow: "0 8px 20px rgba(0,0,0,0.4)" }}>* شرایط و اقساط اعمال می‌شود</div>
+      <AbsoluteFill style={{ background: "linear-gradient(180deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.35) 14%, rgba(0,0,0,0) 30%, rgba(0,0,0,0) 64%, rgba(0,0,0,0.65) 82%, rgba(0,0,0,0.85) 100%)" }} />
+      {P ? (
+        <Bubble t={t} words={lineWords(3)} x={360} y={292} maxW={620} size={88} theme="yel" tail={0.75} rot={-3} wob={2.5} o={1 - 0.6 * dim} />
+      ) : (
+        <Bubble t={t} words={lineWords(3)} x={540} y={400} size={118} theme="yel" tail={0.62} rot={-3} wob={2.5} o={1 - 0.6 * dim} />
       )}
-      <PriceTag t={t} t0={tTag} ax={810} ay={600} value={48} unit="میلیون تومن" len={110} side={-1} o={1 - clamp((t - tSms) / 0.2)} />
+      {/* «آره» → the fine print (left of his head, over the hanging bags) */}
+      {t >= wt(4, "آره") && (
+        <div style={{ position: "absolute", left: P ? 34 : 150, top: P ? 540 : 640, transform: `rotate(-4deg) scale(${back((t - wt(4, "آره")) / 0.3, 2)})`, opacity: clamp((t - wt(4, "آره")) / 0.08) * (1 - 0.6 * dim), background: "#fff", color: INK, font: `800 34px/1.45 "RVazir"`, padding: "4px 20px 10px", direction: "rtl", boxShadow: "0 8px 20px rgba(0,0,0,0.4)", textAlign: "center" }}>
+          {P ? <>* شرایط و اقساط<br />اعمال می‌شود</> : "* شرایط و اقساط اعمال می‌شود"}
+        </div>
+      )}
+      <PriceTag t={t} t0={tTag} ax={P ? 880 : 810} ay={600} value={48} unit="میلیون تومن" len={110} side={-1} o={1 - clamp((t - tSms) / 0.2)} />
       <BankSms t={t} t0={tSms} y={760} />
       <LieStamp t={t} t0={stampAt(2)} x={330} y={1060} size={0.85} rot={-9} />
       <LieBadge t={t} t0={A} n={2} />
@@ -325,10 +345,10 @@ const Calendar: React.FC<{ t: number }> = ({ t }) => {
         {Array.from({ length: N }, (_, i) => {
           const ts = tTear + i * ((tAngry - tTear - 0.1) / N);
           const u = t - ts;
-          if (u > 0.9) return null;
+          if (u > 0.6) return null;
           const on = u < 0 ? 0 : 1;
           return (
-            <div key={i} style={{ position: "absolute", left: 0, top: 0, opacity: u < 0 ? (i === 0 ? 1 : 0) : 1 - clamp((u - 0.5) / 0.4), transform: on ? `translate(${(i % 2 ? 1 : -1) * 700 * u}px, ${-260 * u + 1900 * u * u}px) rotate(${(i % 2 ? 1 : -1) * 70 * u}deg)` : undefined, transformOrigin: "50% 0%" }}>
+            <div key={i} style={{ position: "absolute", left: 0, top: 0, opacity: u < 0 ? (i === 0 ? 1 : 0) : 1 - clamp((u - 0.3) / 0.3), transform: on ? `translate(${(i % 2 ? 1 : -1) * 1300 * u}px, ${-320 * u + 1500 * u * u}px) rotate(${(i % 2 ? 1 : -1) * 80 * u}deg)` : undefined, transformOrigin: "50% 0%" }}>
               {(u >= 0 || i === 0) && t >= tTear - 2 && <CalPage w={PW} h={PH} sub="شروع رژیم و باشگاه" />}
             </div>
           );
