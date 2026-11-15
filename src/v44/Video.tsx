@@ -33,7 +33,7 @@ if (typeof window !== "undefined") {
 // photo cards the user makes with ChatGPT (public/v44/img/); false = placeholder mount
 export const IMG: Record<string, boolean> = { "01-surena": true, "02-crassus": true, "03-reveal": true, "04-parthian-shot": true, "05-camels": true, "06-orodes": true };
 // where the face is in each 16:9 picture (portrait cards crop to it)
-const FOCUS: Record<string, string> = { "01-surena": "21% 30%", "02-crassus": "37% 30%", "06-orodes": "82% 28%" };
+const FOCUS: Record<string, string> = { "01-surena": "50% 22%", "02-crassus": "48% 24%", "06-orodes": "52% 20%" };
 
 // ---------- palette (v35) ----------
 const GOLD = "#F2C46E", GOLD2 = "#E8B04B", CREAM = "#FBEBCB", WINE = "#C25A6A",RED = "#D9543A", INK = "#120B07";
