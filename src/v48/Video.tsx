@@ -51,7 +51,7 @@ const Ring: React.FC<{ t: number; t0: number; x: number; y: number; rx: number; 
 // ═════════════════════════ hook (line 0) ═════════════════════════
 const Hook: React.FC<{ t: number }> = ({ t }) => {
   const at = (i: number) => wi(0, i);
-  const t5 = at(0);
+  const t5 = at(0) - 0.5; // already landing on frame 0 (no empty first frame)
   const k5 = back((t - t5) / 0.42, 2.2);
   const [sx, sy] = shakeXY(t, t5 + 0.14, 18, 6);
   const tok = (txt: string, a: number, key = false) => {
@@ -93,6 +93,9 @@ const Q1: React.FC<{ t: number }> = ({ t }) => {
   const A = cutAt(1);
   const k = eo((t - A) / 0.3);
   const msgs: Msg[] = [
+    { kind: "sep", text: "دیروز", at: -10, h: 70 },
+    { kind: "in", name: "رضا", text: "فردا ساعت ۸، دیر نکنید!", at: -10, time: "۲۲:۱۰" },
+    { kind: "out", text: "حتماً، سر وقت میام!", at: -10, time: "۲۲:۱۱" },
     { kind: "sep", text: "امروز", at: -10, h: 70 },
     { kind: "in", name: "رضا", text: "کجایی پس؟! همه رسیدن", at: -10, time: "۲۰:۴۷" },
     { kind: "in", name: "سارا", text: "زود باش دیگه!", at: A + 0.04, time: "۲۰:۴۸" },
@@ -122,7 +125,7 @@ const R1: React.FC<{ t: number }> = ({ t }) => {
       <AbsoluteFill style={{ background: "linear-gradient(180deg, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.25) 26%, rgba(0,0,0,0) 45%, rgba(0,0,0,0) 66%, rgba(0,0,0,0.7) 84%, rgba(0,0,0,0.85) 100%)" }} />
       <Ring t={t} t0={wt(2, "پتوئه") - 0.05} x={560} y={1110} rx={330} ry={210} label="موقعیت فعلی" lx={90} ly={830} />
       <NavCard t={t} t0={tEta} y={400} />
-      <LieStamp t={t} t0={stampAt(1)} x={700} y={540} size={0.9} />
+      <LieStamp t={t} t0={stampAt(1)} x={300} y={525} size={0.82} />
       <LieBadge t={t} t0={cutAt(1)} n={1} />
     </AbsoluteFill>
   );
@@ -148,7 +151,7 @@ const Shop: React.FC<{ t: number }> = ({ t }) => {
       )}
       <PriceTag t={t} t0={tTag} ax={810} ay={600} value={48} unit="میلیون تومن" len={110} side={-1} o={1 - clamp((t - tSms) / 0.2)} />
       <BankSms t={t} t0={tSms} y={760} />
-      <LieStamp t={t} t0={stampAt(2)} x={600} y={1000} size={0.95} rot={-9} />
+      <LieStamp t={t} t0={stampAt(2)} x={330} y={1060} size={0.85} rot={-9} />
       <LieBadge t={t} t0={A} n={2} />
     </AbsoluteFill>
   );
@@ -206,7 +209,7 @@ const Chat3: React.FC<{ t: number }> = ({ t }) => {
                     <div key={lab} style={{ textAlign: "center" }}>
                       <div style={{ position: "relative", width: c === 2 ? 220 : 160, height: 270, borderRadius: 24, background: "#0F1115", overflow: "hidden" }}>
                         <div style={{ position: "absolute", left: 0, right: 0, top: -90 + off, filter: "blur(2.5px)", opacity: 0.55 }}>
-                          {Array.from({ length: 5 }, (_, i) => <div key={i} style={{ height: 90, font: `400 60px/90px "RLalezar"`, color: "#fff" }}>{fa(((Math.floor(t * (7 + c * 3)) + i * 7 + c * 3) % (c === 2 ? 90 : 12)) + (c === 2 ? 1400 : 1))}</div>)}
+                          {Array.from({ length: 5 }, (_, i) => <div key={i} style={{ height: 90, font: `400 60px/90px "RLalezar"`, color: "#fff" }}>{(((Math.floor(t * (7 + c * 3)) + i * 7 + c * 3) % (c === 2 ? 90 : 12)) + (c === 2 ? 1400 : 1)).toLocaleString("fa-IR", { useGrouping: false })}</div>)}
                         </div>
                         <div style={{ position: "absolute", left: 8, right: 8, top: 90, height: 90, borderRadius: 16, border: `4px solid ${YEL}`, background: "rgba(15,17,21,0.75)", display: "flex", alignItems: "center", justifyContent: "center", font: `400 76px/1 "RLalezar"`, color: YEL, paddingTop: 8, boxSizing: "border-box", transform: `scale(${1 + 0.06 * Math.sin(t * 9 + c)})` }}>؟</div>
                       </div>
@@ -334,7 +337,7 @@ const Calendar: React.FC<{ t: number }> = ({ t }) => {
         {[0.3, 0.7].map((f) => <div key={f} style={{ position: "absolute", left: PW * f - 16, top: -26, width: 32, height: 56, borderRadius: 16, border: `7px solid #333`, background: "transparent" }} />)}
         {/* «تعطیله!» sign swinging on the page */}
         {signK > 0 && (
-          <div style={{ position: "absolute", left: PW / 2 - 200, top: PH * 0.8, width: 400, transform: `rotate(${swing - 4}deg) scale(${back((t - tSign) / 0.25, 2)})`, transformOrigin: "50% -60px" }}>
+          <div style={{ position: "absolute", left: PW / 2 - 200, top: PH * 0.97, width: 400, transform: `rotate(${swing - 4}deg) scale(${back((t - tSign) / 0.25, 2)})`, transformOrigin: "50% -60px" }}>
             <svg width="400" height="70" style={{ position: "absolute", top: -64, left: 0 }}><path d="M90 66 L200 4 L310 66" fill="none" stroke="#333" strokeWidth="6" /><circle cx="200" cy="6" r="9" fill="#333" /></svg>
             <div style={{ background: INK, color: YEL, border: `6px solid ${YEL}`, borderRadius: 18, font: `400 82px/1.15 "RLalezar"`, textAlign: "center", padding: "0 0 10px", direction: "rtl", boxShadow: "0 16px 30px rgba(0,0,0,0.4)" }}>تعطیله!</div>
           </div>

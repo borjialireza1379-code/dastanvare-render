@@ -86,7 +86,7 @@ export const LieStamp: React.FC<{ t: number; t0: number; x: number; y: number; s
         <g filter="url(#v48-grunge)">
           <rect x="8" y="8" width="414" height="194" rx="26" fill="rgba(255,255,255,0.06)" stroke={RED} strokeWidth="13" />
           <rect x="26" y="26" width="378" height="158" rx="14" fill="none" stroke={RED} strokeWidth="4.5" />
-          <text x="215" y="150" textAnchor="middle" direction="rtl" style={{ font: `400 132px "RLalezar"` }} fill={RED}>{text}</text>
+          <text x="215" y={text.length > 6 ? 136 : 150} textAnchor="middle" direction="rtl" style={{ font: `400 ${text.length > 6 ? 88 : 132}px "RLalezar"` }} fill={RED}>{text}</text>
         </g>
       </svg>
     </div>
@@ -244,7 +244,7 @@ export const BankSms: React.FC<{ t: number; t0: number; y: number; x?: number }>
       </div>
       <div style={{ font: `800 40px/1.5 "RVazir"`, color: INK, marginTop: 14 }}>برداشت از حساب: قسط وام</div>
       <div style={{ display: "flex", alignItems: "baseline", gap: 14 }}>
-        <span style={{ font: `400 96px/1.1 "RLalezar"`, color: INK }}>{fa(Math.round(4.8e6 * eo((t - t0 - 0.15) / 0.5))).replace(/٬/g, "٬")}</span>
+        <span style={{ font: `400 96px/1.1 "RLalezar"`, color: INK, direction: "ltr", unicodeBidi: "isolate" }}>{fa(Math.round((4.8e6 * eo((t - t0 - 0.15) / 0.5)) / 1000) * 1000)}</span>
         <span style={{ font: `400 50px "RLalezar"`, color: INK }}>تومن</span>
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: 16, marginTop: 10 }}>
@@ -285,7 +285,7 @@ export const DeliveryCard: React.FC<{ t: number; t0: number; tPress: number; tDo
           <div style={{ font: `800 38px "RVazir"`, color: INK }}>همبرگر مخصوص</div>
           <div style={{ font: `700 28px "RVazir"`, color: "#777" }}>تعداد: {fa(1)}</div>
         </div>
-        <div style={{ font: `400 52px "RLalezar"`, color: INK, whiteSpace: "nowrap" }}>{fa(450000)} <span style={{ fontSize: 32 }}>تومن</span></div>
+        <div style={{ font: `400 52px "RLalezar"`, color: INK, whiteSpace: "nowrap" }}><span style={{ direction: "ltr", unicodeBidi: "isolate" }}>{fa(450000)}</span> <span style={{ fontSize: 32 }}>تومن</span></div>
       </div>
       <div style={{ position: "relative", height: 104, borderRadius: 28, overflow: "hidden", transform: `scale(${press})`, background: done > 0 ? INK : YEL, display: "flex", alignItems: "center", justifyContent: "center", gap: 16 }}>
         {t >= tPress && done === 0 && <div style={{ position: "absolute", left: "50%", top: "50%", width: 900 * rip, height: 900 * rip, marginLeft: -450 * rip, marginTop: -450 * rip, borderRadius: "50%", background: "rgba(255,255,255,0.45)", opacity: 1 - rip }} />}
@@ -330,20 +330,23 @@ export const Crumbs: React.FC<{ t: number; t0: number; x: number; y: number; n?:
 export const CalPage: React.FC<{ w: number; h: number; word?: string; sub?: string; eyes?: number; brow?: number; look?: number }> = ({ w, h, word = "فردا", sub = "شروع رژیم و باشگاه", eyes = 0, brow = 0, look = 0 }) => (
   <div style={{ position: "relative", width: w, height: h, background: "#FFFDF7", borderRadius: 18, overflow: "hidden", boxShadow: "inset 0 -10px 0 rgba(0,0,0,0.05)" }}>
     <div style={{ height: h * 0.18, background: INK, display: "flex", alignItems: "center", justifyContent: "center", font: `800 ${h * 0.065}px "RVazir"`, color: YEL, direction: "rtl" }}>تقویم من</div>
-    <div style={{ position: "absolute", left: 0, right: 0, top: h * 0.26, textAlign: "center", font: `400 ${h * 0.34}px/1 "RLalezar"`, color: INK, direction: "rtl" }}>{word}</div>
+    <div style={{ position: "absolute", left: 0, right: 0, top: h * (0.26 - 0.05 * clamp(eyes)), textAlign: "center", font: `400 ${h * (0.34 - 0.07 * clamp(eyes))}px/1 "RLalezar"`, color: INK, direction: "rtl" }}>{word}</div>
     <div style={{ position: "absolute", left: 0, right: 0, bottom: h * 0.08, textAlign: "center", font: `800 ${h * 0.055}px "RVazir"`, color: "#777", direction: "rtl" }}>{sub}</div>
     {eyes > 0 && (
+      // an angry face under the word: big eyes with pupils, brows slanting down to the middle, a frown
       <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} style={{ position: "absolute", inset: 0 }}>
         {[-1, 1].map((sd) => {
-          const ex = w / 2 + sd * w * 0.2, ey = h * 0.66;
+          const ex = w / 2 + sd * w * 0.15, ey = h * 0.72;
+          const rx = w * 0.085, ry = w * 0.095 * eyes;
           return (
-            <g key={sd} opacity={eyes}>
-              <ellipse cx={ex + look * 8} cy={ey} rx={w * 0.05} ry={w * 0.07 * eyes} fill={INK} />
-              <ellipse cx={ex + look * 8 - w * 0.015} cy={ey - w * 0.025} rx={w * 0.014} ry={w * 0.018} fill="#fff" />
-              <path d={`M ${ex - sd * w * 0.09} ${ey - w * 0.1 - brow * w * 0.02} L ${ex + sd * w * 0.08} ${ey - w * 0.1 + brow * w * 0.06}`} stroke={INK} strokeWidth={w * 0.03} strokeLinecap="round" />
+            <g key={sd} opacity={clamp(eyes * 3)}>
+              <ellipse cx={ex} cy={ey} rx={rx} ry={ry} fill="#fff" stroke={INK} strokeWidth={w * 0.014} />
+              <circle cx={ex + look * rx * 0.35} cy={ey + ry * 0.15} r={w * 0.042 * Math.min(1, eyes * 1.5)} fill={INK} />
+              <path d={`M ${ex - sd * w * 0.11} ${ey - ry - w * 0.035 - brow * w * 0.02} L ${ex + sd * w * 0.06} ${ey - ry + w * 0.005 + brow * w * 0.03}`} stroke={INK} strokeWidth={w * 0.034} strokeLinecap="round" />
             </g>
           );
         })}
+        <path d={`M ${w * 0.42} ${h * 0.86} Q ${w * 0.5} ${h * 0.82} ${w * 0.58} ${h * 0.86}`} fill="none" stroke={INK} strokeWidth={w * 0.022} strokeLinecap="round" opacity={clamp(eyes * 3)} />
       </svg>
     )}
   </div>
