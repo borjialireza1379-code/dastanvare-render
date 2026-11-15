@@ -1,6 +1,6 @@
 import { Composition } from "remotion";
-import { V41, V41_FPS, V41_FRAMES } from "./v41/Video";
+import { V44, V44_FPS, V44_FRAMES } from "./v44/Video";
 
 export const RemotionRoot: React.FC = () => (
-  <Composition id="V41-Silent" component={V41} durationInFrames={V41_FRAMES} fps={V41_FPS} width={1080} height={1920} defaultProps={{ silent: true }} />
+  <Composition id="V44-Silent" component={V44} durationInFrames={V44_FRAMES} fps={V44_FPS} width={1080} height={1920} defaultProps={{ silent: true }} />
 );
