@@ -404,8 +404,8 @@ export const V45: React.FC<{ silent?: boolean; at?: number }> = ({ silent, at })
     els.push(<div key="area" style={{ position: "absolute", left: g[0] - gr, top: g[1] - gr, width: gr * 2, height: gr * 2, borderRadius: "50%", border: `3px dashed ${GOLD}`, background: "rgba(242,196,110,.18)", opacity: rg * (1 - ramp(t, l[2].s, l[2].s + 0.6)) }} />);
     els.push(<Label key="areal" p={g} text="محل تقریبی نبرد" k={rg * (1 - ramp(t, l[2].s, l[2].s + 0.6))} size={32} dy={-gr - 26} color={GOLD} />);
     els.push(<Card key="b1" y={275} k={win(t, Wd(1, "گوگمل", 0.3) - 0.2, l[2].s + 0.6, 0.3)} text="نبرد گوگمل" sub="۱ اکتبر ۳۳۱ پیش از میلاد" />);
-    els.push(<Photo key="pa" src="01-alexander" c={[790, 1060]} w={330} ar={4 / 5} k={win(t, tA - 0.2, Wd(1, "گوگمل", 0.3) - 0.1, 0.3)} t={t} caption="اسکندر مقدونی" rot={2} />);
-    els.push(<Photo key="pd" src="02-darius" c={[290, 1060]} w={330} ar={4 / 5} k={win(t, tD - 0.2, Wd(1, "گوگمل", 0.3) - 0.1, 0.3)} t={t} caption="داریوش سوم" rot={-2} />);
+    els.push(<Photo key="pa" src="01-alexander" c={[790, 1060]} w={330} ar={4 / 5} k={win(t, tA - 0.2, l[2].s + 0.3, 0.3)} t={t} caption="اسکندر مقدونی" rot={2} />);
+    els.push(<Photo key="pd" src="02-darius" c={[290, 1060]} w={330} ar={4 / 5} k={win(t, tD - 0.2, l[2].s + 0.3, 0.3)} t={t} caption="داریوش سوم" rot={-2} />);
   }
 
   // ---- year chip ----
