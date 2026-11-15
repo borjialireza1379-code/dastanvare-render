@@ -1,0 +1,294 @@
+{
+ "clips": {
+  "s02a": {
+   "file": "v46/footage/s02a.mp4",
+   "kind": "video",
+   "w": 1450,
+   "h": 1080,
+   "dur": 9,
+   "fps": 30,
+   "in": 3,
+   "out": 12,
+   "audio": false,
+   "focus": [
+    0.49,
+    0.417
+   ],
+   "source": "commons",
+   "id": "File:Apollo 4 separation of interstage ring.webm",
+   "title": "Apollo 4 separation of interstage ring",
+   "page": "https://commons.wikimedia.org/wiki/File:Apollo_4_separation_of_interstage_ring.webm",
+   "author": "NASA",
+   "year": 1967,
+   "licence": {
+    "code": "pd",
+    "name": "Public domain",
+    "url": "",
+    "verdict": "free",
+    "attr": false,
+    "sa": false
+   },
+   "credit": "Apollo 4 separation of interstage ring · NASA · Wikimedia Commons · Public domain",
+   "shot": "s02"
+  },
+  "s03a": {
+   "file": "v46/footage/s03a.mp4",
+   "kind": "video",
+   "w": 1920,
+   "h": 1080,
+   "dur": 8.508,
+   "fps": 59.94,
+   "in": 7.5,
+   "out": 16,
+   "audio": false,
+   "focus": [
+    0.5,
+    0.5
+   ],
+   "source": "commons",
+   "id": "File:Falcon 9 Flight 99 first stage landing (KSC-20201121-MH-MAT01-0001).webm",
+   "title": "Falcon 9 Flight 99 first stage landing (KSC-20201121-MH-MAT01-0001)",
+   "page": "https://commons.wikimedia.org/wiki/File:Falcon_9_Flight_99_first_stage_landing_(KSC-20201121-MH-MAT01-0001).webm",
+   "author": "U.S. Space Force/30th Space Wing/Mark Mackley and Aaron Taubman",
+   "year": 2020,
+   "licence": {
+    "code": "pd",
+    "name": "Public domain",
+    "url": "",
+    "verdict": "free",
+    "attr": false,
+    "sa": false
+   },
+   "credit": "Falcon 9 Flight 99 first stage landing (KSC-20201121-MH-MAT01-0001) · U.S. Space Force/30th Space Wing/Mark Mackley and Aaron Taubman · Wikimedia Commons · Public domain",
+   "shot": "s03"
+  },
+  "s04a": {
+   "file": "v46/footage/s04a.mp4",
+   "kind": "video",
+   "w": 1920,
+   "h": 1080,
+   "dur": 16.016,
+   "fps": 59.94,
+   "in": 102,
+   "out": 118,
+   "audio": false,
+   "focus": [
+    0.521,
+    0.5
+   ],
+   "source": "nasa",
+   "id": "jsc2024m000188_Views_of_Starship_Flight_6_from_International_Space_Station",
+   "title": "jsc2024m000188_Views_of_Starship_Flight_6_from_International_Space_Station",
+   "page": "https://images.nasa.gov/details/jsc2024m000188_Views_of_Starship_Flight_6_from_International_Space_Station",
+   "author": "JSC",
+   "year": 2024,
+   "licence": {
+    "code": "gov",
+    "name": "Public domain (NASA)",
+    "url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+    "verdict": "free",
+    "attr": false,
+    "sa": false
+   },
+   "credit": "jsc2024m000188_Views_of_Starship_Flight_6_from_International_Space_Station · JSC · NASA · Public domain (NASA)",
+   "shot": "s04"
+  },
+  "s07a": {
+   "file": "v46/footage/s07a.mp4",
+   "kind": "video",
+   "w": 1920,
+   "h": 1080,
+   "dur": 34,
+   "fps": 30,
+   "in": 66,
+   "out": 100,
+   "audio": false,
+   "focus": [
+    0.646,
+    0.5
+   ],
+   "source": "commons",
+   "id": "File:IFT5 Aerostat.webm",
+   "title": "IFT5 Aerostat",
+   "page": "https://commons.wikimedia.org/wiki/File:IFT5_Aerostat.webm",
+   "author": "US Customs and Border Protection",
+   "year": 2025,
+   "licence": {
+    "code": "pd",
+    "name": "Public domain",
+    "url": "",
+    "verdict": "free",
+    "attr": false,
+    "sa": false
+   },
+   "credit": "IFT5 Aerostat · US Customs and Border Protection · Wikimedia Commons · Public domain",
+   "shot": "s07"
+  },
+  "s09a": {
+   "file": "v46/footage/s09a.mp4",
+   "kind": "video",
+   "w": 1720,
+   "h": 1080,
+   "dur": 52,
+   "fps": 15,
+   "in": 88,
+   "out": 140,
+   "audio": false,
+   "focus": [
+    0.406,
+    0.45
+   ],
+   "source": "commons",
+   "id": "File:SpaceX Starship IFT-1 NASA WB-57 Cam 0.webm",
+   "title": "SpaceX Starship IFT-1 NASA WB-57 Cam 0",
+   "page": "https://commons.wikimedia.org/wiki/File:SpaceX_Starship_IFT-1_NASA_WB-57_Cam_0.webm",
+   "author": "NASA",
+   "year": 2023,
+   "licence": {
+    "code": "pd",
+    "name": "Public domain",
+    "url": "",
+    "verdict": "free",
+    "attr": false,
+    "sa": false
+   },
+   "credit": "SpaceX Starship IFT-1 NASA WB-57 Cam 0 · NASA · Wikimedia Commons · Public domain",
+   "shot": "s09"
+  },
+  "s06a": {
+   "file": "v46/footage/s06a.jpg",
+   "kind": "image",
+   "w": 3840,
+   "h": 2560,
+   "focus": [
+    0.354,
+    0.421
+   ],
+   "source": "commons",
+   "id": "File:Ship 39 in Megabay 2, Boca Chica TX.jpg",
+   "title": "Ship 39 in Megabay 2, Boca Chica TX",
+   "page": "https://commons.wikimedia.org/wiki/File:Ship_39_in_Megabay_2,_Boca_Chica_TX.jpg",
+   "author": "Petty Officer 1st Class Alexander Kubitza",
+   "year": 2026,
+   "licence": {
+    "code": "pd",
+    "name": "Public domain",
+    "url": "",
+    "verdict": "free",
+    "attr": false,
+    "sa": false
+   },
+   "credit": "Ship 39 in Megabay 2, Boca Chica TX · Petty Officer 1st Class Alexander Kubitza · Wikimedia Commons · Public domain",
+   "shot": "s06"
+  },
+  "s08a": {
+   "file": "v46/footage/s08a.jpg",
+   "kind": "image",
+   "w": 3840,
+   "h": 2560,
+   "focus": [
+    0.5,
+    0.421
+   ],
+   "source": "commons",
+   "id": "File:ISS-58 Gulf of Mexico, Texas and Louisiana.jpg",
+   "title": "ISS-58 Gulf of Mexico, Texas and Louisiana",
+   "page": "https://commons.wikimedia.org/wiki/File:ISS-58_Gulf_of_Mexico,_Texas_and_Louisiana.jpg",
+   "author": "NASA",
+   "year": 2019,
+   "licence": {
+    "code": "pd",
+    "name": "Public domain",
+    "url": "",
+    "verdict": "free",
+    "attr": false,
+    "sa": false
+   },
+   "credit": "ISS-58 Gulf of Mexico, Texas and Louisiana · NASA · Wikimedia Commons · Public domain",
+   "shot": "s08"
+  },
+  "s04b": {
+   "file": "v46/footage/s04b.mp4",
+   "kind": "video",
+   "w": 1920,
+   "h": 1080,
+   "dur": 15.999,
+   "fps": 59.94,
+   "in": 112,
+   "out": 128,
+   "audio": false,
+   "focus": [
+    0.156,
+    0.5
+   ],
+   "source": "nasa",
+   "id": "jsc2024m000188_Views_of_Starship_Flight_6_from_International_Space_Station",
+   "title": "jsc2024m000188_Views_of_Starship_Flight_6_from_International_Space_Station",
+   "page": "https://images.nasa.gov/details/jsc2024m000188_Views_of_Starship_Flight_6_from_International_Space_Station",
+   "author": "JSC",
+   "year": 2024,
+   "licence": {
+    "code": "gov",
+    "name": "Public domain (NASA)",
+    "url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+    "verdict": "free",
+    "attr": false,
+    "sa": false
+   },
+   "credit": "jsc2024m000188_Views_of_Starship_Flight_6_from_International_Space_Station · JSC · NASA · Public domain (NASA)",
+   "shot": "s04"
+  }
+ },
+ "shots": {
+  "s01": {
+   "t0": null,
+   "t1": null,
+   "text": "یه سفینه‌ی پنجاه‌متری از مدار زمین برگشت… و یه برج، وسط هوا گرفتش."
+  },
+  "s02": {
+   "t0": null,
+   "t1": null,
+   "text": "شصت ساله که هر موشکی رفته مدار، طبقه‌ی بالاییش رو دور انداخته؛ انگار بعد از هر پرواز، هواپیما رو بندازی دور."
+  },
+  "s03": {
+   "t0": null,
+   "t1": null,
+   "text": "حتی فالکون ۹ که بوسترش رو نزدیک ششصد بار نشونده، طبقه‌ی دومش رو هر بار از دست می‌ده."
+  },
+  "s04": {
+   "t0": null,
+   "t1": null,
+   "text": "تا بیست‌وسوم آبان. سفینه‌ی چهل‌ودوی استارشیپ نزدیک یه روز دور زمین چرخید، ماهواره‌هاش رو رها کرد و برگشت."
+  },
+  "s05": {
+   "t0": null,
+   "t1": null,
+   "text": "با سرعت بیست‌وهشت هزار کیلومتر بر ساعت خورد به جو؛ با شکم شیرجه زد تا اصطکاک هوا بیشتر از نود و نه درصد سرعتش رو بگیره."
+  },
+  "s06": {
+   "t0": null,
+   "t1": null,
+   "text": "حدود هجده هزار کاشی سرامیکی، جلوی پلاسمای هزار و چهارصد درجه‌ای رو گرفتن."
+  },
+  "s07": {
+   "t0": null,
+   "t1": null,
+   "text": "هجده ثانیه‌ی آخر، موتورها روشن شدن، توی دو ثانیه صاف ایستاد… و نشست وسط بازوهای برج؛ همون بازوهایی که بهشون می‌گن چاپستیک."
+  },
+  "s08": {
+   "t0": null,
+   "t1": null,
+   "text": "جالبه بدونی خود بوستر این پرواز به برج نرسید؛ سوختش کم بود و سیستم خودکار، برای اینکه برج آسیب نبینه، فرستادش توی خلیج مکزیک."
+  },
+  "s09": {
+   "t0": null,
+   "t1": null,
+   "text": "چرا مهمه؟ چون موشکی که برگرده، دوباره پرواز می‌کنه. هدف اسپیس‌ایکس اینه که فرستادن بار به فضا تا صد برابر ارزون‌تر بشه."
+  },
+  "s10": {
+   "t0": null,
+   "t1": null,
+   "text": "گرفتن، قدم اول بود. قدم دوم: دوباره پریدن."
+  }
+ }
+}
