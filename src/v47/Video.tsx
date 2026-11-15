@@ -40,11 +40,11 @@ const MEDIA = {
   arch: { src: "v47/gta/19.jpg", w: 1215, h: 2003 },
 } satisfies Record<string, M>;
 // pictures the user makes with GPT (public/v47/gpt/<name>.png); flip to true when a file arrives
-const GPT = { ps5: false, skeleton: false, breakfast: false, lunch: false, dinner: false };
-const gptSrc = (n: keyof typeof GPT) => `v47/gpt/${n}.png`;
+const GPT = { ps5: true, skeleton: true, breakfast: true, lunch: true, dinner: true };
+const gptSrc = (n: keyof typeof GPT) => `v47/gpt/${n}.jpg`;
 /** a picture of unknown size, covering its box */
 const Pic: React.FC<{ src: string; fx?: number; fy?: number; z?: number; blend?: boolean; filter?: string }> = ({ src, fx = 0.5, fy = 0.5, z = 1, blend, filter }) => (
-  <Img src={staticFile(src)} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: `${fx * 100}% ${fy * 100}%`, transform: `scale(${z})`, mixBlendMode: blend ? "lighten" : undefined, filter }} />
+  <Img src={staticFile(src)} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: `${fx * 100}% ${fy * 100}%`, transform: `scale(${z})`, transformOrigin: `${fx * 100}% ${fy * 100}%`, mixBlendMode: blend ? "lighten" : undefined, filter }} />
 );
 /** PS5: the GPT photo if there is one, else the vector */
 const Ps5: React.FC<{ w: number; h: number; glow?: number }> = ({ w, h, glow = 1 }) =>
@@ -53,10 +53,21 @@ const Ps5: React.FC<{ w: number; h: number; glow?: number }> = ({ w, h, glow = 1
   ) : (
     <div style={{ width: w, height: h, display: "flex", alignItems: "center", justifyContent: "center" }}><Ps5Art h={h * 0.92} glow={glow} /></div>
   );
-const FOOD_GPT: Record<FoodKind, keyof typeof GPT | null> = { plate: null, breadcheese: "breakfast", egg: "breakfast", rice: "lunch", ricepotato: "lunch", riceegg: "lunch", bread: "dinner" };
+const FOOD_GPT: Record<FoodKind, keyof typeof GPT | null> = { plate: null, breadcheese: "breakfast", egg: "breakfast", rice: "lunch", ricepotato: "lunch", riceegg: "breakfast", bread: "dinner" };
+// where each beat looks inside the GPT photo (breakfast: bread left, cheese top, tea top-right, egg bottom-right)
+const FOOD_FOCUS: Record<FoodKind, { fx: number; fy: number; z: number }> = {
+  plate: { fx: 0.5, fy: 0.5, z: 1 },
+  breadcheese: { fx: 0.32, fy: 0.42, z: 1.15 },
+  egg: { fx: 0.74, fy: 0.7, z: 1.9 },
+  rice: { fx: 0.4, fy: 0.5, z: 1.45 },
+  ricepotato: { fx: 0.5, fy: 0.5, z: 1.03 },
+  riceegg: { fx: 0.72, fy: 0.66, z: 1.45 },
+  bread: { fx: 0.5, fy: 0.5, z: 1.03 },
+};
 const Dish: React.FC<{ kind: FoodKind; w: number; h: number; z?: number }> = ({ kind, w, h, z = 1 }) => {
   const g = FOOD_GPT[kind];
-  return g && GPT[g] ? <Pic src={gptSrc(g)} z={z} /> : <Food kind={kind} w={w} h={h} />;
+  const fc = FOOD_FOCUS[kind];
+  return g && GPT[g] ? <Pic src={gptSrc(g)} fx={fc.fx} fy={fc.fy} z={fc.z * z} /> : <Food kind={kind} w={w} h={h} />;
 };
 
 /** media covering a bw×bh box, centred on (fx, fy), zoom z; videos start at absolute time `at` */
@@ -282,12 +293,12 @@ const ActC: React.FC<{ t: number }> = ({ t }) => {
         <div style={{ position: "absolute", inset: 0, opacity: heroO, transform: `translateY(${-500 * kL5}px)` }}>
           {shown.map((d, i) => {
             const k = clamp((t - d.at) / 0.34);
-            const y = 690 - 1150 * (1 - back(k, 1.2));
+            const y = 680 - 1150 * (1 - back(k, 1.2));
             const depth = shown.length - 1 - i;
             return (
-              <Card key={d.at} x={540 + depth * 6} y={y + depth * 4} w={840} h={600} rot={d.rot + 14 * (1 - k)} sc={1 - depth * 0.03} radius={26}>
+              <Card key={d.at} x={540 + depth * 6} y={y + depth * 4} w={780} h={660} rot={d.rot + 14 * (1 - k)} sc={1 - depth * 0.03} radius={26}>
                 <div style={{ position: "absolute", inset: 0, transform: `scale(${1 + 0.05 * clamp((t - d.at) / 3)})` }}>
-                  <Dish kind={d.kind} w={820} h={580} />
+                  <Dish kind={d.kind} w={760} h={640} />
                 </div>
                 {d.label === "" && t < drops[1].at && (
                   <div style={{ position: "absolute", left: 0, right: 0, top: 120, textAlign: "center", font: `400 300px/1 "RLalezar"`, color: INK, opacity: 0.85, transform: `translateY(${Math.sin(t * 5) * 10}px) rotate(${Math.sin(t * 3) * 6}deg) scale(${back((t - tThree) / 0.35, 2)})` }}>؟</div>
@@ -296,7 +307,7 @@ const ActC: React.FC<{ t: number }> = ({ t }) => {
             );
           })}
           {shown.length > 0 && shown[shown.length - 1].label && (
-            <div style={{ position: "absolute", left: 0, right: 0, top: 362, display: "flex", justifyContent: "center" }}>
+            <div style={{ position: "absolute", left: 0, right: 0, top: 326, display: "flex", justifyContent: "center" }}>
               <Tape key={shown[shown.length - 1].at} text={shown[shown.length - 1].label} k={clamp((t - shown[shown.length - 1].at - 0.18) / 0.3)} size={44} />
             </div>
           )}
@@ -319,7 +330,7 @@ const ActC: React.FC<{ t: number }> = ({ t }) => {
             <div style={{ position: "absolute", left: 0, right: 0, top: 56 * sc, bottom: 0 }}>
               {filled ? (
                 <div style={{ position: "absolute", inset: 0, transform: `scale(${0.6 + 0.4 * back(fk, 2)})`, opacity: clamp(fk * 4) }}>
-                  <Dish kind={slotFood[i]} w={w - 10 * sc} h={h - 66 * sc} z={1.3} />
+                  <Dish kind={slotFood[i]} w={w - 10 * sc} h={h - 66 * sc} z={1.1} />
                 </div>
               ) : (
                 <div style={{ textAlign: "center", font: `400 ${110 * sc}px/${(h - 66 * sc) * 1.05}px "RLalezar"`, color: "#4A4A4A" }}>؟</div>
@@ -365,22 +376,23 @@ const ActD: React.FC<{ t: number }> = ({ t }) => {
     const tYear = wt(7, "سال"), tEight = wt(7, "هشت");
     const segW = (900 - 19 * 6) / 20;
     const wk = clamp((t - c7 - 0.25) / 0.3);
+    const wTop = GPT.skeleton ? 300 : 800, tapeTop = GPT.skeleton ? 1150 : 1060;
     return (
       <AbsoluteFill>
         {GPT.skeleton ? (
-          <Pic src={gptSrc("skeleton")} z={1.03 + 0.05 * clamp((t - c7) / 2)} filter={`grayscale(${0.85 * gray}) contrast(1.1)`} />
+          <Pic src={gptSrc("skeleton")} fx={0.47} fy={0.4} z={1.02 + 0.06 * clamp((t - c7) / 2)} filter={`grayscale(${0.85 * gray}) contrast(1.1) brightness(${1.15 - 0.2 * gray})`} />
         ) : (
           <Fill m={MEDIA.lane} bw={W} bh={H} fx={0.5} fy={0.5} z={1.06 + 0.08 * clamp((t - c7) / 2)} filter={`grayscale(${gray}) contrast(1.15) brightness(${1 - 0.25 * gray})`} />
         )}
         <AbsoluteFill style={{ background: `rgba(0,0,0,${0.25 * gray})` }} />
         {/* the banner */}
-        <div style={{ position: "absolute", left: 0, right: 0, top: 800, height: 230, background: `linear-gradient(90deg, rgba(0,0,0,0) 0%, rgba(0,0,0,${0.7 * wk}) 20%, rgba(0,0,0,${0.7 * wk}) 80%, rgba(0,0,0,0) 100%)` }} />
-        <div style={{ position: "absolute", left: 0, right: 0, top: 812, textAlign: "center", font: `400 190px/1.05 ${LAT}`, letterSpacing: 6, color: "#D7263D", opacity: wk, transform: `scale(${1.25 - 0.25 * eo(wk)})`, textShadow: "0 0 3px #000, 0 6px 24px rgba(0,0,0,0.8)" }}>WASTED</div>
-        <div style={{ position: "absolute", left: 0, right: 0, top: 1060, display: "flex", justifyContent: "center" }}>
+        <div style={{ position: "absolute", left: 0, right: 0, top: wTop, height: 230, background: `linear-gradient(90deg, rgba(0,0,0,0) 0%, rgba(0,0,0,${0.7 * wk}) 20%, rgba(0,0,0,${0.7 * wk}) 80%, rgba(0,0,0,0) 100%)` }} />
+        <div style={{ position: "absolute", left: 0, right: 0, top: wTop + 12, textAlign: "center", font: `400 190px/1.05 ${LAT}`, letterSpacing: 6, color: "#D7263D", opacity: wk, transform: `scale(${1.25 - 0.25 * eo(wk)})`, textShadow: "0 0 3px #000, 0 6px 24px rgba(0,0,0,0.8)" }}>WASTED</div>
+        <div style={{ position: "absolute", left: 0, right: 0, top: tapeTop, display: "flex", justifyContent: "center" }}>
           <Tape text="تو، بعد از ۶۲۰ روز گرسنگی" k={clamp((t - c7 - 0.55) / 0.35)} size={46} />
         </div>
         {/* 12 + 8 months */}
-        <div style={{ position: "absolute", left: 90, width: 900, top: 1240, height: 64, display: "flex", gap: 6, direction: "rtl" }}>
+        <div style={{ position: "absolute", left: 90, width: 900, top: 1250, height: 64, display: "flex", gap: 6, direction: "rtl" }}>
           {Array.from({ length: 20 }, (_, i) => {
             const a = i < 12 ? tYear - 0.2 + i * 0.025 : tEight - 0.15 + (i - 12) * 0.03;
             const f = clamp((t - a) / 0.12);
