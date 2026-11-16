@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import { AbsoluteFill, Html5Audio, Img, continueRender, delayRender, staticFile, useCurrentFrame } from "remotion";
 import { Cam, E, FA, FA_NUM, Key, LE, LIN, LS, MONT_BEATS, SW, VO_END, W, WE, WHIP, camAt, clamp01, clampCam, drift, pop, proj, ramp, toView, win } from "./geo";
-import { BigText, Bubble, Captions, Card, Chip, Dot, FONT_HERO, FONT_UI, Flag, FlagTint, GOLD, IR, JP, Kind, MapView, MiniFlag, Motes, Photo, Pin, Shape, Stamp } from "./parts";
+import { BigText, Bubble, Captions, Card, Chip, Dot, FONT_HERO, FONT_UI, Flag, FlagTint, GOLD, JP, Kind, MapView, MiniFlag, Motes, Photo, Pin, Shape, Stamp } from "./parts";
 import { Dizi, FilmLeader, Gauge, Ghormeh, Kabab, Noodles, OilDrop, PlaneGlyph, Ramen, SpeedLines, Sun, Sushi, Tanker, Volcano } from "./glyphs";
 import B from "./borders.json";
 
@@ -50,6 +50,9 @@ const T = {
 const M = MONT_BEATS; // 25 beats: six shots × 4 beats
 const BEAT = (M[M.length - 1] - M[0]) / (M.length - 1);
 const MONT = [M[0], M[M.length - 1]] as const;
+// the film countdown before the anime: one number per half-beat (the user wanted it quicker)
+const HB = BEAT / 2;
+const LEADER_A = M[0] - 3 * HB;
 
 /* ---------------- cameras ---------------- */
 const JP_SPLIT: Cam = { lon: 137.5, lat: 38.2, s: 0.95 };
@@ -75,7 +78,7 @@ const SECTIONS: [number, number, string, string][] = [
   [T.l3, T.l5 - 0.1, "طبیعت", "#ff8a7a"],
   [T.l5, T.l8 - 0.1, "اقتصاد", "#ffd34d"],
   [T.l8, T.l10 - 0.1, "جغرافیا", "#7fd3ff"],
-  [T.l10, MONT[0] - 1.6, "فرهنگ", "#c9a6ff"],
+  [T.l10, LEADER_A + 0.1, "فرهنگ", "#c9a6ff"],
   [T.l13, T.l16 - 0.3, "غذا", "#8fe388"],
 ];
 
@@ -139,10 +142,12 @@ export const V49: React.FC<{ silent?: boolean; times?: number[] }> = ({ silent =
   /* ---------- who lives where (tints) ---------- */
   const landIR = T.jp1 + 0.35; // the Iranian flag lands on Japan
   const landJP = T.ir1 + 0.3; // the Japanese flag lands on Iran
+  // the user (2026-11-16): the Iranian flag only in the opening; after that Japan (now home of the Iranians) gets a warm
+  // neutral highlight instead of the tricolour. The Japanese flag stays on Iran.
   const jpLand = (c: Cam, id: string, o = 1) => (
     <>
       <FlagTint id={id + "j0"} d={C.japan} box={BX.japan} kind="jp" o={o * ramp(t, 0.1, 0.5) * (1 - ramp(t, landIR, landIR + 0.35))} t={t} sw={sw(c)} />
-      <FlagTint id={id + "j1"} d={C.japan} box={BX.japan} kind="ir" o={o * ramp(t, landIR, landIR + 0.35)} t={t} sw={sw(c)} />
+      <Shape d={C.japan} o={o * ramp(t, landIR, landIR + 0.35)} fill="rgba(255,214,120,.16)" stroke="#fff" sw={sw(c)} glow="rgba(255,211,77,.85)" />
     </>
   );
   const irLand = (c: Cam, id: string, o = 1, edge?: string) => (
@@ -206,7 +211,7 @@ export const V49: React.FC<{ silent?: boolean; times?: number[] }> = ({ silent =
       <>
         <MapView cam={cu} h={hTop} shake={dr}>
           {jpLand(cu, "hu")}
-          <Crowd pts={crowdJP} t={t} a={T.n91} dur={1.3} r={4.2 / cu.s} colors={[IR.g, "#ffffff", IR.r]} o={1 - k} />
+          <Crowd pts={crowdJP} t={t} a={T.n91} dur={1.3} r={4.2 / cu.s} colors={["#ffffff", GOLD, "#ffe1c4"]} o={1 - k} />
         </MapView>
         <MapView cam={ci} h={960} top={hTop}>
           {irLand(ci, "hi")}
@@ -216,7 +221,8 @@ export const V49: React.FC<{ silent?: boolean; times?: number[] }> = ({ silent =
         <Chip x={SW - 50} y={hTop - 62} anchor="l" text="خاکِ ژاپن" o={win(t, 0.15, T.n91, 0.25, 0.3)} size={34} />
         <Chip x={SW - 50} y={hTop + 62} anchor="l" text="خاکِ ایران" o={win(t, 0.15, T.n91, 0.25, 0.3)} size={34} />
         <Planes t={t} a={T.beran} b={T.l3} y={hTop} o={1 - k} />
-        <Flag kind="ir" x={sIR.x} y={sIR.y} w={260} t={t} o={(t > T.irani1 ? 1 : 0) * (1 - k)} s={fi.rise * (1 - 0.5 * fi.land)} rot={-8 + 16 * fi.f} pole={fi.land > 0.5} />
+        {/* the Iranian flag flies once and fades as it lands (no Iranian flag after the opening) */}
+        <Flag kind="ir" x={sIR.x} y={sIR.y} w={260} t={t} o={(t > T.irani1 ? 1 : 0) * (1 - k) * (1 - fi.land)} s={fi.rise * (1 - 0.4 * fi.land)} rot={-8 + 16 * fi.f} />
         <Flag kind="jp" x={sJP.x} y={sJP.y} w={230} t={t + 0.4} o={(t > T.jpni1 ? 1 : 0) * (1 - k)} s={fj.rise * (1 - 0.5 * fj.land)} rot={8 - 16 * fj.f} pole={fj.land > 0.5} />
         {/* the premise */}
         <div dir="rtl" style={{
@@ -228,7 +234,7 @@ export const V49: React.FC<{ silent?: boolean; times?: number[] }> = ({ silent =
           همون مردم، همون عادت‌ها…<br /><span style={{ color: GOLD }}>فقط سرزمین عوض شد</span>
         </div>
         {/* L2: the head counts */}
-        <Chip x={SW / 2} y={hTop - 110} text={`${FA(Math.round(91 * ramp(t, T.n91, T.n91 + 0.8, LIN)))} میلیون ایرانی`} size={50} o={win(t, T.n91, T.l3 + 0.1, 0.2, 0.3)} s={pop(t, T.n91)} icon={<MiniFlag kind="ir" />} />
+        <Chip x={SW / 2} y={hTop - 110} text={`${FA(Math.round(91 * ramp(t, T.n91, T.n91 + 0.8, LIN)))} میلیون ایرانی`} size={50} o={win(t, T.n91, T.l3 + 0.1, 0.2, 0.3)} s={pop(t, T.n91)} icon={<Dot c={GOLD} />} />
         <Chip x={SW / 2} y={hTop + 110} text={`${FA(Math.round(124 * ramp(t, T.n124, T.n124 + 0.8, LIN)))} میلیون ژاپنی`} size={50} o={win(t, T.n124, T.l3 + 0.1, 0.2, 0.3)} s={pop(t, T.n124)} icon={<MiniFlag kind="jp" />} />
       </>
     );
@@ -249,7 +255,7 @@ export const V49: React.FC<{ silent?: boolean; times?: number[] }> = ({ silent =
         </MapView>
         <div style={{ position: "absolute", left: 0, right: 0, top: hTop - 3, height: 6, background: "rgba(255,255,255,.9)", opacity: k }} />
         <Chip x={SW / 2} y={hTop + 110} text={`مرز زمینی ژاپن: ${FA(0)} کیلومتر`} size={50} o={k * ramp(t, T.hich - 0.15, T.hich + 0.1)} s={pop(t, T.hich - 0.15)} color={GOLD} icon={<MiniFlag kind="jp" />} />
-        <Chip x={SW / 2} y={hTop - 110} text={`${FA_NUM(5894)} کیلومتر`} size={46} o={k} icon={<MiniFlag kind="ir" />} />
+        <Chip x={SW / 2} y={hTop - 110} text={`${FA_NUM(5894)} کیلومتر`} size={46} o={k} color={GOLD} />
       </>
     );
   } else if (inFood) {
@@ -314,16 +320,16 @@ export const V49: React.FC<{ silent?: boolean; times?: number[] }> = ({ silent =
           <Motes t={t} o={win(t, T.l10, T.l11 + 0.3, 0.6, 0.3)} color="201,166,255" />
           <BigText y={860} text={"یه اتفاق عجیب‌تر" + ".".repeat(Math.max(0, Math.min(3, Math.floor((t - T.ajib) * 3))))} size={104} o={win(t, T.ajib - 0.1, T.l11 + 0.1, 0.3, 0.25)} s={pop(t, T.ajib - 0.1, 0.5)} glow="rgba(201,166,255,.9)" />
           {/* L11: the anime industry moves to Iran */}
-          <SpeedLines w={1080} h={1920} t={t} o={0.55 * win(t, T.l11, MONT[0] - 1.7, 0.15, 0.25)} cy={880} />
-          <BigText y={860} text="انیمه‌سازی" size={190 + 6 * Math.sin(t * 9)} o={win(t, T.anime - 0.05, MONT[0] - 1.7, 0.12, 0.25)} s={pop(t, T.anime - 0.05, 0.5)} glow="rgba(255,105,180,.95)" />
-          <Chip x={SW / 2} y={1040} text="استودیو: تهران" size={50} o={win(t, T.anime + 0.35, MONT[0] - 1.7, 0.2, 0.25)} s={pop(t, T.anime + 0.35)} bg="rgba(255,105,180,.92)" icon={<MiniFlag kind="jp" w={48} />} />
+          <SpeedLines w={1080} h={1920} t={t} o={0.55 * win(t, T.l11, LEADER_A, 0.15, 0.25)} cy={880} />
+          <BigText y={860} text="انیمه‌سازی" size={190 + 6 * Math.sin(t * 9)} o={win(t, T.anime - 0.05, LEADER_A, 0.12, 0.25)} s={pop(t, T.anime - 0.05, 0.5)} glow="rgba(255,105,180,.95)" />
+          <Chip x={SW / 2} y={1040} text="استودیو جبرعیلی" size={50} o={win(t, T.anime + 0.35, LEADER_A, 0.2, 0.25)} s={pop(t, T.anime + 0.35)} bg="rgba(255,105,180,.92)" icon={<MiniFlag kind="jp" w={48} />} />
           {/* L12: the countdown into the montage */}
           {(() => {
-            const a = MONT[0] - 3 * BEAT;
-            if (t < a - 0.25) return null;
-            const n = t < a + BEAT ? 3 : t < a + 2 * BEAT ? 2 : 1;
-            const k = (((t - a) / BEAT) % 1 + 1) % 1;
-            return <FilmLeader t={t} n={n} k={t < a ? 0 : k} o={ramp(t, a - 0.25, a)} />;
+            const a = LEADER_A;
+            if (t < a - 0.12) return null;
+            const n = t < a + HB ? 3 : t < a + 2 * HB ? 2 : 1;
+            const k = (((t - a) / HB) % 1 + 1) % 1;
+            return <FilmLeader t={t} n={n} k={t < a ? 0 : k} o={ramp(t, a - 0.12, a)} />;
           })()}
         </AbsoluteFill>
       )}
@@ -351,7 +357,7 @@ export const V49: React.FC<{ silent?: boolean; times?: number[] }> = ({ silent =
         <div style={{ fontFamily: "Arial", fontWeight: 600, fontSize: 22, letterSpacing: 1.2, color: "#fff", marginTop: 2, textShadow: "0 2px 6px rgba(0,0,0,.7)" }}>Agarlogy</div>
       </div>
 
-      <Captions t={t} hide={inMont || (t > MONT[0] - 3 * BEAT - 0.25 && t < MONT[0])} y={inDizi ? 1500 : 1330} />
+      <Captions t={t} hide={inMont || (t > LEADER_A - 0.12 && t < MONT[0])} y={inDizi ? 1500 : 1330} />
       {!silent && !times && <Html5Audio src={staticFile("v49/mix-norm.wav")} />}
     </AbsoluteFill>
   );
@@ -493,7 +499,7 @@ const Route: React.FC<{ t: number }> = ({ t }) => {
         <div style={{ position: "absolute", left: left - 4, top: top - 4, width: w + 8, height: h + 8, borderRadius: 38, background: "rgba(255,255,255,.85)", boxShadow: "0 30px 70px rgba(0,0,0,.6), 0 0 30px rgba(255,211,77,.35)" }} />
         <MapView cam={cam} w={w} h={h} top={top} left={left} radius={34}>
           {/* who lives where now */}
-          <FlagTint id="rj" d={C.japan} box={BX.japan} kind="ir" o={1} t={t} sw={S} />
+          <Shape d={C.japan} o={1} fill="rgba(255,214,120,.18)" stroke="#fff" sw={S} glow="rgba(255,211,77,.85)" />
           <FlagTint id="ri" d={C.iran} box={BX.iran} kind="jp" o={1} t={t} sw={S} />
           <svg width={10} height={10} style={{ position: "absolute", left: 0, top: 0, overflow: "visible" }}>
             <path d={d} fill="none" stroke="rgba(255,255,255,.35)" strokeWidth={S * 2} strokeDasharray={`${S * 6} ${S * 5}`} />
@@ -658,7 +664,7 @@ const Food: React.FC<{ t: number }> = ({ t }) => {
   return (
     <AbsoluteFill style={{ opacity: o }}>
       <BigText y={960} text="نوبت غذاست!" size={130} o={win(t, MONT[1] + 0.15, T.l14 + 0.1, 0.2, 0.3)} s={pop(t, T.l13 - 0.05, 0.5)} glow="rgba(143,227,136,.9)" />
-      <Chip x={SW / 2} y={190} text="ایرانی‌ها در ژاپن" size={44} o={ramp(t, T.l14, T.l14 + 0.25)} s={pop(t, T.l14)} icon={<MiniFlag kind="ir" />} />
+      <Chip x={SW / 2} y={190} text="ایرانی‌ها در ژاپن" size={44} o={ramp(t, T.l14, T.l14 + 0.25)} s={pop(t, T.l14)} icon={<Dot c={GOLD} />} />
       <FoodCard x={850} y={600} t={t} a={T.sushi} o={1} name="سوشی" icon={<Sushi size={200} />} />
       <FoodCard x={540} y={600} t={t} a={T.ramen} o={1} name="رامن" icon={<Ramen size={200} />} />
       <FoodCard x={230} y={600} t={t} a={T.noodle} o={1} name="نودل" icon={<Noodles size={200} />} />
@@ -711,7 +717,7 @@ const Ending: React.FC<{ t: number }> = ({ t }) => {
             <Photo src="v49/img/koinobori-tehran.jpg" t={t} a={T.l18} b={END} h={960} focusY={0.3} z0={1.04} z1={1.12} x0={-10} x1={20} />
           </div>
           <div style={{ position: "absolute", left: 0, right: 0, top: 957, height: 6, background: "rgba(255,255,255,.9)", opacity: ph }} />
-          <Chip x={SW / 2} y={110} text="نوروز در توکیو" size={44} o={ph * (1 - endO)} s={pop(t, T.l18 + 0.2)} icon={<MiniFlag kind="ir" />} />
+          <Chip x={SW / 2} y={110} text="نوروز در توکیو" size={44} o={ph * (1 - endO)} s={pop(t, T.l18 + 0.2)} icon={<Dot c={GOLD} />} />
           <Chip x={SW / 2} y={1040} text="کوینوبوری در تهران" size={44} o={ramp(t, T.farhang - 0.1, T.farhang + 0.15) * (1 - endO)} s={pop(t, T.farhang - 0.1)} icon={<MiniFlag kind="jp" />} />
         </>
       )}
@@ -740,15 +746,26 @@ const Choice: React.FC<{ x: number; y: number; t: number; a: number; kind: Kind;
       boxShadow: `0 0 0 4px rgba(255,255,255,.85), 0 0 40px ${glow}, 0 20px 40px rgba(0,0,0,.6)`,
       fontFamily: FONT_HERO, fontSize: 84, color: "#fff", whiteSpace: "nowrap",
     }}>
-      <MiniFlag kind={kind} w={96} />
+      {kind === "jp" ? <MiniFlag kind="jp" w={96} /> : <Silhouette name="iran" h={78} />}
       {text}
     </div>
   );
 };
 
+// a country's outline as a small white icon (no flag)
+const Silhouette: React.FC<{ name: string; h: number }> = ({ name, h }) => {
+  const [x0, y0, x1, y1] = BX[name];
+  const w = (h * (x1 - x0)) / (y1 - y0);
+  return (
+    <svg width={w} height={h} viewBox={`${x0} ${y0} ${x1 - x0} ${y1 - y0}`} style={{ filter: "drop-shadow(0 0 8px rgba(255,211,77,.7))" }}>
+      <path d={C[name]} fill="#fff" stroke={GOLD} strokeWidth={(y1 - y0) / 40} strokeLinejoin="round" />
+    </svg>
+  );
+};
+
 /* frames to check before a full render (seconds) */
 export const V49_LOOK = (() => {
-  const L: number[] = [0.4, T.beran + 0.3, T.jp1 + 0.2, T.ir1 + 0.25, T.chi + 0.5, T.n124 + 0.9, T.l3 + 0.2, T.zelzele + 0.5, T.atash + 1.0, T.nafte + 0.4, T.naft6 + 0.4, T.are + 0.3, T.manabe + 0.3, T.vared + 0.4, T.l8 + 0.4, T.n90 + 1.0, T.marz, T.marz + 0.8, T.hich + 0.3, T.ajib + 0.5, T.anime + 0.5, MONT[0] - 2 * BEAT + 0.2];
+  const L: number[] = [0.4, T.beran + 0.3, T.jp1 + 0.2, T.ir1 + 0.25, T.chi + 0.5, T.n124 + 0.9, T.l3 + 0.2, T.zelzele + 0.5, T.atash + 1.0, T.nafte + 0.4, T.naft6 + 0.4, T.are + 0.3, T.manabe + 0.3, T.vared + 0.4, T.l8 + 0.4, T.n90 + 1.0, T.marz, T.marz + 0.8, T.hich + 0.3, T.ajib + 0.5, T.anime + 0.5, LEADER_A + HB + 0.1];
   for (let i = 0; i < 6; i++) L.push(M[i * 4] + 0.5, M[i * 4 + 2] + 0.5);
   L.push(T.ghaza, T.noodle + 0.5, T.dizi + 0.6, T.dizi16 + 0.4, T.avaz, T.farhang + 0.4, T.ir19 + 0.3, END - 0.3);
   return L;
