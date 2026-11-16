@@ -1,7 +1,7 @@
 {
  "comp": "V50-Silent",
- "audio": "public/v50/mix-b.wav",
- "name": "v50-wars",
- "at": "2026-11-16T18:15:21.622Z",
+ "audio": "public/v50/mix-a.wav",
+ "name": "v50-a",
+ "at": "2026-11-16T18:44:15.107Z",
  "chunks": 8
 }

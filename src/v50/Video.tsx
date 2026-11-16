@@ -4,13 +4,16 @@ import "./fonts";
 import { H, W, cl, drawBg, drawOver, eio, eo, fa, lerp, sm } from "./lib";
 import { Cam, camAt, drawRegion, iranHalo, toScreen } from "./region";
 import { WARS } from "./wars";
+import TM from "./timing.json";
+// زمان‌بندی از نریشن کاربر (videos/50/build-vo.mjs)
+TM.dur.forEach((d, i) => (WARS[i].dur = d));
 
 // ۵۰ (نسخه‌ی ۲) · «ایران چندتا جنگ بزرگ دیده؟» از جنگ ۴۰ روزه تا کوروش، رو به عقب · ریتم تند، بی‌نریشن
 export const V50_FPS = 30;
-export const HOOK = 2.4;
+export const HOOK = TM.hook;
 export const T0 = (() => { const a: number[] = []; let t = HOOK; for (const w of WARS) { a.push(t); t += w.dur; } return a; })();
 export const T_END = T0[T0.length - 1] + WARS[WARS.length - 1].dur;
-const FIN = 5.4;
+const FIN = TM.fin;
 export const V50_TOTAL = +(T_END + FIN).toFixed(2);
 export const V50_FRAMES = Math.round(V50_TOTAL * V50_FPS);
 const N = WARS.length;
@@ -52,7 +55,7 @@ function yearOf(t: number) {
 }
 const yearTxt = (y: number) => (y > 0 ? fa(y) : fa(Math.max(1, -y)));
 
-export const V50: React.FC<{ silent?: boolean; frames?: number[]; mix?: string }> = ({ silent = false, frames, mix = "b" }) => {
+export const V50: React.FC<{ silent?: boolean; frames?: number[]; mix?: string }> = ({ silent = false, frames, mix = "a" }) => {
   const frame = useCurrentFrame();
   const t = (frames ? frames[frame] ?? 0 : frame) / V50_FPS;
   const ref = useRef<HTMLCanvasElement>(null);
@@ -183,18 +186,18 @@ const Finale: React.FC<{ t: number }> = ({ t }) => {
   if (t < T_END + 0.2) return null;
   const n = Math.max(1, Math.round(N * eo(cl((t - T_END - 0.6) / 1.3))));
   const a1 = sm(T_END + 0.3, T_END + 0.6, t);
-  const a2 = sm(T_END + 1.5, T_END + 1.8, t);
-  const a3 = sm(T_END + 2.5, T_END + 2.85, t);
+  const a2 = sm(T_END + TM.f2, T_END + TM.f2 + 0.3, t);
+  const a3 = sm(T_END + TM.f3, T_END + TM.f3 + 0.35, t);
   return (
     <div style={{ position: "absolute", left: 60, right: 60, top: 170, direction: "rtl", textAlign: "center", color: INK, textShadow: TS, fontFamily: HEAD, fontWeight: 900 }}>
       <div style={{ opacity: a1, whiteSpace: "nowrap" }}>
         <span style={{ display: "inline-block", fontSize: 190, lineHeight: 1.05, color: ACC, transform: `scale(${pop(t, T_END + 1.9, 0.1, 0.4)})`, textShadow: `${TS}, 0 0 50px rgba(242,184,96,.45)` }}>{fa(n)}</span>
         <span style={{ fontSize: 66, marginRight: 22 }}>جنگ بزرگ</span>
       </div>
-      <div style={{ fontSize: 52, lineHeight: 1.35, opacity: a2, transform: `translateY(${14 * (1 - eo((t - T_END - 1.5) / 0.4))}px)` }}>
+      <div style={{ fontSize: 52, lineHeight: 1.35, opacity: a2, transform: `translateY(${14 * (1 - eo((t - T_END - TM.f2) / 0.4))}px)` }}>
         از کوروش تا <span style={{ color: ACC }}>امروز</span>
       </div>
-      <div style={{ fontFamily: UI, fontWeight: 700, fontSize: 38, lineHeight: 1.5, marginTop: 1040, color: LAB, opacity: a3, transform: `translateY(${14 * (1 - eo((t - T_END - 2.5) / 0.4))}px)` }}>
+      <div style={{ fontFamily: UI, fontWeight: 700, fontSize: 38, lineHeight: 1.5, marginTop: 1040, color: LAB, opacity: a3, transform: `translateY(${14 * (1 - eo((t - T_END - TM.f3) / 0.4))}px)` }}>
         به نظرت کدوم جنگ ایران رو<br /><span style={{ color: ACC, fontFamily: HEAD, fontWeight: 900, fontSize: 46 }}>بیشتر از همه</span> عوض کرد؟
       </div>
     </div>
