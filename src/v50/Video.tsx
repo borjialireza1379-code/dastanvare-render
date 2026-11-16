@@ -22,7 +22,7 @@ const INK = "#FBEBCB", ACC = "#F2B860", LAB = "#F2DDB2";
 const HEAD = "Estedad", UI = "Vazirmatn";
 const TS = "0 3px 16px rgba(10,6,2,.95), 0 1px 3px rgba(10,6,2,.9)";
 
-const OVER = camAt(49.5, 33.0, 0.5);
+const OVER = camAt(49.5, 33.0, 0.6);
 const camW = (i: number): Cam => { const [lon, lat, z] = WARS[i].cam; return camAt(lon, lat, z); };
 const fly = (a: Cam, b: Cam, k: number): Cam => {
   const e = eio(k);
@@ -33,7 +33,7 @@ const curOf = (t: number) => { let i = -1; for (let j = 0; j < N; j++) if (t >= 
 function camOf(t: number): Cam {
   if (t < T0[0]) { const z = lerp(0.5, 0.56, cl(t / HOOK)); return { ...OVER, z }; }
   const i = curOf(t);
-  if (i >= N) return fly(camW(N - 1), { ...OVER, z: 0.5 }, cl((t - T_END) / 0.9));
+  if (i >= N) return fly(camW(N - 1), { ...OVER, z: 0.6 }, cl((t - T_END) / 0.9));
   const from = i === 0 ? { ...OVER, z: 0.56 } : camW(i - 1);
   const to = camW(i);
   const k = (t - T0[i]) / FLY;

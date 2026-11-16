@@ -17,7 +17,7 @@ export type War = {
 const L: Record<string, Pt> = {
   tehran: [51.39, 35.69], isfahan: [51.67, 32.65], natanz: [51.92, 33.72], fordow: [50.99, 34.88], tabriz: [46.29, 38.08], bandar: [56.27, 27.18],
   hormuz: [56.45, 26.55], bushehr: [50.84, 28.97], ahvaz: [48.67, 31.32], khorram: [48.18, 30.44], basra: [47.8, 30.5], baghdad: [44.36, 33.31],
-  telaviv: [34.85, 32.05], udeid: [51.31, 25.12], bahrain: [50.6, 26.1], arabsea: [60.5, 21.8], med: [31.5, 34.0], qazvin: [50.0, 36.27],
+  telaviv: [34.85, 32.05], udeid: [51.31, 25.12], bahrain: [50.6, 26.1], arabsea: [59.5, 22.0], med: [33.0, 34.4], qazvin: [50.0, 36.27],
   mashhad: [59.6, 36.3], kermanshah: [47.07, 34.31], rasht: [49.58, 37.28], urmia: [45.07, 37.55], tbilisi: [44.79, 41.72], ganja: [46.36, 40.68],
   erevan: [44.51, 40.18], karnal: [76.98, 29.69], kandahar: [65.7, 31.6], kabul: [69.2, 34.5], lahore: [74.3, 31.5], kerman: [57.08, 30.28],
   chaldiran: [44.2, 39.07], istanbul: [28.98, 41.01], ankara: [32.85, 39.93], erzurum: [41.27, 39.9], samarkand: [66.97, 39.65], herat: [62.2, 34.35],
@@ -31,7 +31,7 @@ const L: Record<string, Pt> = {
 export const WARS: War[] = [
   {
     year: 2026, name: "جنگ ۴۰ روزه", sub: "آمریکا و اسرائیل · اسفند ۱۴۰۴ تا فروردین ۱۴۰۵", ticker: { unit: "روز", to: 40 },
-    cam: [47.5, 29.8, 1.3], dur: 2.6,
+    cam: [47.2, 29.8, 1.12], dur: 2.6,
     draw: (x) => {
       missile(x, L.telaviv, L.tehran, 0.0, 0.45, BRICK);
       missile(x, L.arabsea, L.bandar, 0.06, 0.45, BRICK, 0.25);
@@ -43,12 +43,12 @@ export const WARS: War[] = [
       missile(x, L.tabriz, L.telaviv, 0.5, 0.92, GOLD);
       pin(x, L.hormuz, 0.55, "تنگه‌ی هرمز", GOLD, "r", 26);
       tag(x, [34.3, 30.2], 0.1, "اسرائیل");
-      tag(x, [60.5, 20.6], 0.2, "آمریکا");
+      tag(x, [58.8, 21.2], 0.2, "آمریکا");
     },
   },
   {
     year: 2025, name: "جنگ ۱۲ روزه", sub: "اسرائیل و آمریکا · خرداد ۱۴۰۴", ticker: { unit: "روز", to: 12 },
-    cam: [44.5, 32.5, 1.45], dur: 2.4,
+    cam: [45.0, 32.5, 1.25], dur: 2.4,
     draw: (x) => {
       missile(x, L.telaviv, L.tehran, 0.0, 0.42, BRICK);
       missile(x, L.telaviv, L.natanz, 0.08, 0.5, BRICK);
@@ -58,7 +58,7 @@ export const WARS: War[] = [
       missile(x, L.tehran, L.udeid, 0.62, 0.95, GOLD, 0.35);
       pin(x, L.fordow, 0.78, "فردو", BRICK, "r", 24);
       tag(x, [34.3, 30.4], 0.1, "اسرائیل");
-      tag(x, [31.5, 35.3], 0.42, "آمریکا");
+      tag(x, [33.8, 35.6], 0.42, "آمریکا");
     },
   },
   {

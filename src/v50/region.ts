@@ -16,7 +16,35 @@ export type Cam = { x: number; y: number; z: number }; // مرکز (px جهان)
 export const camAt = (lon: number, lat: number, z: number): Cam => { const [x, y] = wp([lon, lat]); return { x, y, z }; };
 export const toScreen = (cam: Cam) => (ll: Pt): Pt => { const [x, y] = wp(ll); return [CX + (x - cam.x) * cam.z, MAP_CY + (y - cam.y) * cam.z]; };
 
-export function drawRegion(c: CanvasRenderingContext2D, cam: Cam, iranGlow: number, t: number) {
+let off: HTMLCanvasElement | null = null;
+export function drawRegion(main: CanvasRenderingContext2D, cam: Cam, iranGlow: number, t: number) {
+  // نقشه روی بوم جدا کشیده می‌شود تا لبه‌های مستطیلی برش داده‌ها نرم محو شوند
+  off ??= Object.assign(document.createElement("canvas"), { width: main.canvas.width, height: main.canvas.height });
+  const c = off.getContext("2d")!;
+  c.setTransform(1, 0, 0, 1, 0, 0);
+  c.clearRect(0, 0, off.width, off.height);
+  drawLand(c, cam, iranGlow, t);
+  const X = (x: number) => CX + (x - cam.x) * cam.z, Y = (y: number) => MAP_CY + (y - cam.y) * cam.z;
+  const f = 150 * cam.z, BIG = 4000;
+  c.save();
+  c.globalCompositeOperation = "destination-out";
+  const edge = (x0: number, y0: number, x1: number, y1: number, rx: number, ry: number, rw: number, rh: number) => {
+    const g = c.createLinearGradient(x0, y0, x1, y1);
+    g.addColorStop(0, "rgba(0,0,0,1)");
+    g.addColorStop(1, "rgba(0,0,0,0)");
+    c.fillStyle = g;
+    c.fillRect(rx, ry, rw, rh);
+  };
+  const xl = X(0), xr = X(G.w), yt = Y(0), yb = Y(G.h);
+  edge(xl, 0, xl + f, 0, xl - BIG, -BIG, BIG + f, 3 * BIG);
+  edge(xr, 0, xr - f, 0, xr - f, -BIG, BIG + f, 3 * BIG);
+  edge(0, yt, 0, yt + f, -BIG, yt - BIG, 3 * BIG, BIG + f);
+  edge(0, yb, 0, yb - f, -BIG, yb - f, 3 * BIG, BIG + f);
+  c.restore();
+  main.drawImage(off, 0, 0);
+}
+
+function drawLand(c: CanvasRenderingContext2D, cam: Cam, iranGlow: number, t: number) {
   const p = P2();
   c.save();
   c.setTransform(cam.z, 0, 0, cam.z, CX - cam.x * cam.z, MAP_CY - cam.y * cam.z);
@@ -60,7 +88,8 @@ const bez = (pts: Pt[], u: number): Pt => {
 };
 
 /** پیکان لشکرکشی روی مسیر (lon/lat)، از a تا b در پیشرفت k رشد می‌کند */
-export function march(x: Ctx, route: Pt[], a: number, b: number, col: RGB, lw = 7) {
+export function march(x: Ctx, route: Pt[], a: number, b: number, col: RGB, lw0 = 7) {
+  const lw = lw0 * 1.3;
   const { c } = x;
   const pts = route.map(x.S);
   const k = x.scar ? 1 : eo(cl((x.k - a) / (b - a)));
@@ -72,7 +101,7 @@ export function march(x: Ctx, route: Pt[], a: number, b: number, col: RGB, lw = 
   if (x.scar) {
     c.globalAlpha = x.scar;
     c.strokeStyle = rgba(col, 1);
-    c.lineWidth = lw * 0.45;
+    c.lineWidth = lw * (0.35 + 0.4 * x.scar);
   } else {
     c.strokeStyle = "rgba(12,7,3,0.55)";
     c.lineWidth = lw + 5;
@@ -130,16 +159,16 @@ export function missile(x: Ctx, from: Pt, to: Pt, a: number, b: number, col: RGB
     const u0 = t0 + ((e - t0) * i) / 16, u1 = t0 + ((e - t0) * (i + 1)) / 16;
     const [x0, y0] = q(u0), [x1, y1] = q(u1);
     c.strokeStyle = rgba(col, (0.85 * (i + 1)) / 16 * (e < 1 ? 1 : Math.max(0, 1 - (u * 1.15 - 1) * 4)));
-    c.lineWidth = 1 + (3 * (i + 1)) / 16;
+    c.lineWidth = 1.5 + (5 * (i + 1)) / 16;
     c.beginPath(); c.moveTo(x0, y0); c.lineTo(x1, y1); c.stroke();
   }
   if (e < 1) {
     const [hx, hy] = q(e);
-    const g = c.createRadialGradient(hx, hy, 0, hx, hy, 16);
+    const g = c.createRadialGradient(hx, hy, 0, hx, hy, 26);
     g.addColorStop(0, rgba(HOT, 1));
     g.addColorStop(1, rgba(col, 0));
     c.fillStyle = g;
-    c.fillRect(hx - 16, hy - 16, 32, 32);
+    c.fillRect(hx - 26, hy - 26, 52, 52);
   } else {
     const w = cl((u * 1.15 - 1) / 0.15);
     c.strokeStyle = rgba(HOT, 0.9 * (1 - w));
