@@ -171,10 +171,11 @@ export const V49: React.FC<{ silent?: boolean; times?: number[] }> = ({ silent =
                 <path d="M0 22 L18 26 L30 14 L44 20 L60 12 M18 26 L22 44 L40 52 L60 46 M30 14 L28 0 M22 44 L6 60" stroke="#8f6a2c" strokeWidth={2.2} fill="none" opacity={0.75} />
               </pattern>
             </defs>
+            <filter id="soft" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation={10} /></filter>
             <g clipPath="url(#irclip)">
               <circle cx={ir.x} cy={ir.y} r={700 * dry} fill="url(#cracks)" opacity={0.78} />
-              <path d={polyD(CASPIAN_GREEN)} fill="#3fae4a" opacity={0.75 * ramp(t, T.n90 + 0.6, T.n90 + 1.0)} />
-              <path d={polyD(ZAGROS_GREEN)} fill="#3fae4a" opacity={0.45 * ramp(t, T.n90 + 0.6, T.n90 + 1.0)} />
+              <path d={polyD(CASPIAN_GREEN)} fill="#3fae4a" filter="url(#soft)" opacity={0.75 * ramp(t, T.n90 + 0.6, T.n90 + 1.0)} />
+              <path d={polyD(ZAGROS_GREEN)} fill="#4fa850" filter="url(#soft)" opacity={0.3 * ramp(t, T.n90 + 0.6, T.n90 + 1.0)} />
             </g>
           </svg>
         )}
@@ -192,14 +193,15 @@ export const V49: React.FC<{ silent?: boolean; times?: number[] }> = ({ silent =
     const hTop = 960 + 960 * k;
     const cu = lerpCam(clampCam({ ...JP_SPLIT, s: JP_SPLIT.s * (1 + 0.05 * ramp(t, 0, T.l3)) }, SW, 960), camFull(t), k);
     const ci = clampCam({ ...IR_SPLIT, s: IR_SPLIT.s * (1 + 0.05 * ramp(t, 0, T.l3)) }, SW, 960);
-    const pu = toView(cu, 137.0, 36.6, SW, hTop), pi = toView(ci, 53.8, 32.3, SW, 960);
+    const pu = toView(cu, 137.0, 36.6, SW, hTop), pi = toView(ci, 53.8, 32.3, SW, 960), pj = toView(ci, 57.5, 36.4, SW, 960);
     const A = { x: pi.x, y: pi.y + hTop }, Bp = { x: pu.x, y: pu.y };
+    const A2 = { x: pj.x, y: pj.y + hTop }; // the Japanese flag lands north-east, clear of the captions
     // the two flights
     const fly = (rise0: number, f0: number, f1: number) => ({ rise: ramp(t, rise0, rise0 + 0.25), f: ramp(t, f0, f1, E), land: ramp(t, f1, f1 + 0.3) });
     const fi = fly(T.irani1, T.beran, landIR), fj = fly(T.jpni1, T.bian, landJP);
     const arcI = Math.sin(fi.f * Math.PI) * 240, arcJ = Math.sin(fj.f * Math.PI) * 240;
     const sIR = { x: A.x + (Bp.x - A.x) * fi.f + arcI, y: A.y + (Bp.y - A.y) * fi.f - 40 * fi.rise };
-    const sJP = { x: Bp.x + (A.x - Bp.x) * fj.f - arcJ, y: Bp.y + (A.y - Bp.y) * fj.f - 40 * fj.rise };
+    const sJP = { x: Bp.x + (A2.x - Bp.x) * fj.f - arcJ, y: Bp.y + (A2.y - Bp.y) * fj.f - 40 * fj.rise };
     views = (
       <>
         <MapView cam={cu} h={hTop} shake={dr}>
@@ -310,7 +312,7 @@ export const V49: React.FC<{ silent?: boolean; times?: number[] }> = ({ silent =
           <Chip x={SW / 2} y={300} text={`${FA_NUM(Math.round(5894 * ramp(t, T.nazdik, TRACE_END, LIN)))} کیلومتر مرز زمینی`} size={52} o={win(t, T.nazdik, T.chizi - 0.1, 0.2, 0.3)} s={pop(t, T.nazdik) * (1 + 0.05 * thudAt(t, TRACE_END))} color={GOLD} />
           {/* L10: «a stranger thing…» */}
           <Motes t={t} o={win(t, T.l10, T.l11 + 0.3, 0.6, 0.3)} color="201,166,255" />
-          <BigText y={860} text="یه اتفاق عجیب‌تر…" size={104} o={win(t, T.ajib - 0.1, T.l11 + 0.1, 0.3, 0.25)} s={pop(t, T.ajib - 0.1, 0.5)} glow="rgba(201,166,255,.9)" />
+          <BigText y={860} text={"یه اتفاق عجیب‌تر" + ".".repeat(Math.max(0, Math.min(3, Math.floor((t - T.ajib) * 3))))} size={104} o={win(t, T.ajib - 0.1, T.l11 + 0.1, 0.3, 0.25)} s={pop(t, T.ajib - 0.1, 0.5)} glow="rgba(201,166,255,.9)" />
           {/* L11: the anime industry moves to Iran */}
           <SpeedLines w={1080} h={1920} t={t} o={0.55 * win(t, T.l11, MONT[0] - 1.7, 0.15, 0.25)} cy={880} />
           <BigText y={860} text="انیمه‌سازی" size={190 + 6 * Math.sin(t * 9)} o={win(t, T.anime - 0.05, MONT[0] - 1.7, 0.12, 0.25)} s={pop(t, T.anime - 0.05, 0.5)} glow="rgba(255,105,180,.95)" />
@@ -655,7 +657,7 @@ const Food: React.FC<{ t: number }> = ({ t }) => {
   const o = 1 - ramp(t, T.l16 - 0.5, T.l16 - 0.25);
   return (
     <AbsoluteFill style={{ opacity: o }}>
-      <BigText y={960} text="نوبت غذاست!" size={130} o={win(t, MONT[1] + 0.15, T.l14 + 0.1, 0.2, 0.3)} s={pop(t, T.ghaza - 0.25, 0.5)} glow="rgba(143,227,136,.9)" />
+      <BigText y={960} text="نوبت غذاست!" size={130} o={win(t, MONT[1] + 0.15, T.l14 + 0.1, 0.2, 0.3)} s={pop(t, T.l13 - 0.05, 0.5)} glow="rgba(143,227,136,.9)" />
       <Chip x={SW / 2} y={190} text="ایرانی‌ها در ژاپن" size={44} o={ramp(t, T.l14, T.l14 + 0.25)} s={pop(t, T.l14)} icon={<MiniFlag kind="ir" />} />
       <FoodCard x={850} y={600} t={t} a={T.sushi} o={1} name="سوشی" icon={<Sushi size={200} />} />
       <FoodCard x={540} y={600} t={t} a={T.ramen} o={1} name="رامن" icon={<Ramen size={200} />} />
@@ -698,18 +700,18 @@ const Ending: React.FC<{ t: number }> = ({ t }) => {
     <>
       {/* L17 */}
       <Motes t={t} o={win(t, T.l17, T.l18 + 0.2, 0.4, 0.3)} />
-      <BigText y={960} text="یه چیز عوض نمی‌شه…" size={100} o={win(t, T.l17 + 0.1, T.l18, 0.3, 0.25)} s={pop(t, T.avaz - 0.2, 0.5)} glow="rgba(255,190,60,.85)" />
+      <BigText y={960} text="یه چیز عوض نمی‌شه" size={100} o={win(t, T.l17 + 0.1, T.l18, 0.3, 0.25)} s={pop(t, T.l17 + 0.1, 0.5) * (1 + 0.05 * (t > T.avaz ? 1 - ramp(t, T.avaz, T.avaz + 0.4) : 0))} glow="rgba(255,190,60,.85)" />
       {/* L18: Nowruz in Tokyo above, koinobori in Tehran below */}
       {ph > 0 && (
         <>
           <div style={{ position: "absolute", left: 0, top: 0, width: SW, height: 960, overflow: "hidden", transform: `translateX(${(1 - ph) * -1080}px)` }}>
-            <Photo src="v49/img/nowruz-tokyo.jpg" t={t} a={T.l18} b={END} h={960} focusY={0.45} z0={1.04} z1={1.12} x0={10} x1={-20} />
+            <Photo src="v49/img/nowruz-tokyo.jpg" t={t} a={T.l18} b={END} h={960} focusY={0.37} z0={1.04} z1={1.12} x0={10} x1={-20} />
           </div>
           <div style={{ position: "absolute", left: 0, top: 960, width: SW, height: 960, overflow: "hidden", transform: `translateX(${(1 - ph) * 1080}px)` }}>
             <Photo src="v49/img/koinobori-tehran.jpg" t={t} a={T.l18} b={END} h={960} focusY={0.3} z0={1.04} z1={1.12} x0={-10} x1={20} />
           </div>
           <div style={{ position: "absolute", left: 0, right: 0, top: 957, height: 6, background: "rgba(255,255,255,.9)", opacity: ph }} />
-          <Chip x={SW / 2} y={190} text="نوروز در توکیو" size={44} o={ph * (1 - endO)} s={pop(t, T.l18 + 0.2)} icon={<MiniFlag kind="ir" />} />
+          <Chip x={SW / 2} y={110} text="نوروز در توکیو" size={44} o={ph * (1 - endO)} s={pop(t, T.l18 + 0.2)} icon={<MiniFlag kind="ir" />} />
           <Chip x={SW / 2} y={1040} text="کوینوبوری در تهران" size={44} o={ramp(t, T.farhang - 0.1, T.farhang + 0.15) * (1 - endO)} s={pop(t, T.farhang - 0.1)} icon={<MiniFlag kind="jp" />} />
         </>
       )}

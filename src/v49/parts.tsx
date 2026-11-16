@@ -45,8 +45,8 @@ export const FlagTint: React.FC<{ id: string; d: string; box: Box; kind: Kind; o
     const [cx, cy] = disc ?? [x0 + bw / 2, y0 + bh / 2];
     body = (
       <>
-        <rect x={x0 - 20} y={y0 - 20} width={bw + 40} height={bh + 40} fill={JP.w} opacity={0.3} />
-        <circle cx={cx} cy={cy} r={Math.min(bw, bh) * 0.24} fill={JP.r} opacity={0.62} />
+        <rect x={x0 - 20} y={y0 - 20} width={bw + 40} height={bh + 40} fill={JP.w} opacity={0.32} />
+        <circle cx={cx} cy={cy} r={Math.min(bw, bh) * 0.17} fill={JP.r} opacity={0.45} />
       </>
     );
   }
@@ -168,10 +168,12 @@ export const Captions: React.FC<{ t: number; y?: number; hide?: boolean }> = ({ 
   const k = clamp01((t - c.s + 0.08) / 0.16);
   return (
     <div dir="rtl" style={{
-      position: "absolute", left: 50, right: 50, top: y, textAlign: "center",
+      position: "absolute", left: 40, right: 40, top: y, textAlign: "center",
       fontFamily: FONT_UI, fontWeight: 900, fontSize: 64, lineHeight: 1.35,
       transform: `translateY(${(1 - k) * 16}px) scale(${0.96 + 0.04 * k})`, opacity: k,
     }}>
+      {/* a soft dark pill keeps the words readable over flags, dots and photos */}
+      <div style={{ display: "inline-block", background: "rgba(6,14,22,.5)", borderRadius: 26, padding: "4px 14px 10px", boxShadow: "0 6px 24px rgba(0,0,0,.25)" }}>
       {c.words.map((w, j) => {
         const on = t >= w.s - 0.03;
         const hit = on && t < w.e;
@@ -183,6 +185,7 @@ export const Captions: React.FC<{ t: number; y?: number; hide?: boolean }> = ({ 
           }}>{w.w.replace(/[«»]/g, "")}</span>
         );
       })}
+      </div>
     </div>
   );
 };
