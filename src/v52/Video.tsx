@@ -292,7 +292,8 @@ export const V52: React.FC<{ silent?: boolean; times?: number[] }> = ({ silent =
       const dx = far.x - p0.x, dy = far.y - p0.y, L = Math.hypot(dx, dy) || 1;
       const p = { x: p0.x + (dx / L) * 900 * go, y: p0.y + (dy / L) * 900 * go };
       const fade = 1 - ramp(t, T_NOT + 0.45 + i * 0.06, T_NOT + 0.8 + i * 0.06);
-      if (k * fade > 0.01) chips.push({ key: `h${i}`, p, text: hk.name, an: hk.an, k: k * fade, big: 1 });
+      // a question mark, not the name: the hook must not spoil the list (user, 2026-11-17)
+      if (k * fade > 0.01) chips.push({ key: `h${i}`, p, text: "؟", an: hk.an, k: k * fade, big: 1 });
       const dk = ramp(t, hk.t, hk.t + 0.2) * (1 - ramp(t, T_NOT + 0.6, T_NOT + 1.0));
       if (dk > 0.01) dots.push({ p: p0, k: dk, pulse: (t - hk.t) / 0.8 });
       if (go > 0.02) arcs.push({ a: p0, b: p, p: 1, alpha: 0.9 * (1 - ramp(t, T_NOT + 0.7, T_NOT + 1.1)) });
