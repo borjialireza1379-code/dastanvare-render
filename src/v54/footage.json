@@ -1,0 +1,56 @@
+{
+ "clips": {
+  "measles": {
+   "file": "v54/footage/measles.jpg",
+   "kind": "image",
+   "w": 3060,
+   "h": 3082,
+   "focus": [
+    0.5,
+    0.416
+   ],
+   "source": "commons",
+   "id": "File:Measles virus.JPG",
+   "title": "Measles virus",
+   "page": "https://commons.wikimedia.org/wiki/File:Measles_virus.JPG",
+   "author": "Photo Credit: Cynthia S. Goldsmith Content Providers(s): CDC/ Courtesy of Cynthia S. Goldsmith; William Bellini, Ph.D.",
+   "year": null,
+   "licence": {
+    "code": "pd",
+    "name": "Public domain",
+    "url": "",
+    "verdict": "free",
+    "attr": false,
+    "sa": false
+   },
+   "credit": "Measles virus · Photo Credit: Cynthia S. Goldsmith Content Providers(s): CDC/ Courtesy of Cynthia S. Goldsmith; William Bellini, Ph.D. · Wikimedia Commons · Public domain",
+   "shot": "measles-virus-transmission-electron-micrograph-image"
+  },
+  "flu": {
+   "file": "v54/footage/flu.jpg",
+   "kind": "image",
+   "w": 2650,
+   "h": 2070,
+   "focus": [
+    0.359,
+    0.39
+   ],
+   "source": "commons",
+   "id": "File:Influenza A - late passage.jpg",
+   "title": "Influenza A - late passage",
+   "page": "https://commons.wikimedia.org/wiki/File:Influenza_A_-_late_passage.jpg",
+   "author": "Photo Credit: Content Providers(s): CDC/ Dr. Erskine Palmer",
+   "year": 1981,
+   "licence": {
+    "code": "pd",
+    "name": "Public domain",
+    "url": "",
+    "verdict": "free",
+    "attr": false,
+    "sa": false
+   },
+   "credit": "Influenza A - late passage · Photo Credit: Content Providers(s): CDC/ Dr. Erskine Palmer · Wikimedia Commons · Public domain",
+   "shot": "influenza-virus-electron-micrograph-cdc-image"
+  }
+ }
+}
