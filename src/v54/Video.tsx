@@ -18,7 +18,6 @@ const LINES = (vo as unknown as { lines: Line[] }).lines;
 const TOTAL = (vo as { total: number }).total;
 export const V54_FRAMES = Math.ceil((TOTAL + 0.3) * V54_FPS);
 const W = 1080, H = 1920;
-const PT = 2.2 * H, PH = PT + H + 0.3 * H; // map plane: extends 2.2 frames above the frame, 0.3 below
 
 // ---------- fonts ----------
 const FA_T = "Estedad", FA_UI = "Vazirmatn", FA_TY = "VazirCode", MONO = "JBMonoV54";
@@ -170,24 +169,60 @@ const NEAR_FADE = (() => {
   const m = TL.near, f = (lat: number) => ((wy(lat) * 2 ** m.z - m.y0 * 256) / (m.rows * 256)) * 100;
   return [f(11.3), f(11.18)];
 })();
-const Tiles: React.FC<{ c: Cam; night: number }> = ({ c, night }) => {
-  const lv: [string, number, boolean][] = [
-    ["wide", 1, c.z < 9.5], ["region", ramp(c.z, 7.0, 7.5), c.z > 6.9 && c.z < 13], ["near", ramp(c.z, 9.7, 10.2), c.z > 9.6], ["island", ramp(c.z, 12.0, 12.5), c.z > 11.9],
-  ];
-  const filter = `saturate(${1.05 - 0.45 * night}) contrast(1.06) brightness(${0.97 - 0.42 * night})`;
-  return (
-    <>
-      {lv.map(([name, o, show]) => {
-        if (!show || o <= 0) return null;
-        const m = TL[name], k = 2 ** (c.z - m.z);
-        const mask = name === "near" ? `linear-gradient(to bottom, #000 ${NEAR_FADE[0]}%, transparent ${NEAR_FADE[1]}%)` : undefined;
-        return (
-          <Img key={name} src={staticFile(`v54/${name}.jpg`)}
-            style={{ position: "absolute", left: (m.x0 * 256 - wx(c.lon) * 2 ** m.z) * k + W / 2, top: (m.y0 * 256 - wy(c.lat) * 2 ** m.z) * k + H / 2, width: m.cols * 256 * k, height: m.rows * 256 * k, maxWidth: "none", opacity: o, filter, WebkitMaskImage: mask, maskImage: mask }} />
-        );
-      })}
-    </>
-  );
+// The map is drawn on ONE canvas the size of the map plane. (Preview 1–3 used <Img> layers tens of thousands of px wide;
+// inside the 3D-tilted plane Chrome then dropped every overlay drawn after it: captions, logo, prints.)
+// Map plane around the frame: CX left/right, CT above, CB below — enough for a 44° tilt at perspective 2000.
+const CX = 560, CT = 1800, CB = 200, CWd = W + 2 * CX, CHt = CT + H + CB;
+const LVIMG: Record<string, HTMLImageElement | undefined> = {};
+if (typeof window !== "undefined") {
+  const h = delayRender("v54 map levels", { timeoutInMilliseconds: 120000 });
+  Promise.all(["wide", "region", "near", "island"].map((n) => new Promise<void>((res) => {
+    const im = new Image();
+    im.onload = () => { LVIMG[n] = im; res(); };
+    im.onerror = () => { console.error("v54 level " + n); res(); };
+    im.src = staticFile(`v54/${n}.jpg`);
+  }))).then(() => continueRender(h));
+}
+const TileCanvas: React.FC<{ c: Cam; night: number }> = ({ c, night }) => {
+  const ref = useRef<HTMLCanvasElement>(null);
+  useLayoutEffect(() => {
+    const cv = ref.current;
+    if (!cv) return;
+    const x = cv.getContext("2d")!;
+    x.globalAlpha = 1;
+    x.filter = "none";
+    x.fillStyle = OCEAN;
+    x.fillRect(0, 0, CWd, CHt);
+    x.imageSmoothingEnabled = true;
+    x.imageSmoothingQuality = "high";
+    x.filter = `saturate(${1.05 - 0.45 * night}) contrast(1.06) brightness(${0.97 - 0.42 * night})`;
+    const lv: [string, number, boolean][] = [
+      ["wide", 1, c.z < 9.5], ["region", ramp(c.z, 7.0, 7.5), c.z > 6.9 && c.z < 13], ["near", ramp(c.z, 9.7, 10.2), c.z > 9.6], ["island", ramp(c.z, 12.0, 12.5), c.z > 11.9],
+    ];
+    for (const [name, o, show] of lv) {
+      const im = LVIMG[name];
+      if (!show || o <= 0 || !im) continue;
+      const m = TL[name], k = 2 ** (c.z - m.z);
+      const L0 = (m.x0 * 256 - wx(c.lon) * 2 ** m.z) * k + W / 2 + CX, T0 = (m.y0 * 256 - wy(c.lat) * 2 ** m.z) * k + H / 2 + CT;
+      const DW = m.cols * 256 * k, DH = m.rows * 256 * k, NW = im.naturalWidth, NH = im.naturalHeight;
+      // draw source rows [r0, r1) (fractions of the image height) with alpha a, clipped to the canvas
+      const part = (r0: number, r1: number, a: number) => {
+        const dx0 = Math.max(0, L0), dx1 = Math.min(CWd, L0 + DW), dy0 = Math.max(0, T0 + r0 * DH), dy1 = Math.min(CHt, T0 + r1 * DH);
+        if (dx1 - dx0 < 0.5 || dy1 - dy0 < 0.5 || a <= 0) return;
+        x.globalAlpha = a;
+        x.drawImage(im, ((dx0 - L0) / DW) * NW, ((dy0 - T0) / DH) * NH, ((dx1 - dx0) / DW) * NW, ((dy1 - dy0) / DH) * NH, dx0, dy0, dx1 - dx0, dy1 - dy0);
+      };
+      if (name === "near") {
+        // the z11 mosaic is cloudy south of ~11.2°N: fade it out there (the z8 level shows instead)
+        const a = NEAR_FADE[0] / 100, b = NEAR_FADE[1] / 100, N = 8;
+        part(0, a, o);
+        for (let i = 0; i < N; i++) part(a + ((b - a) * i) / N, a + ((b - a) * (i + 1)) / N, o * (1 - (i + 0.5) / N));
+      } else part(0, 1, o);
+    }
+    x.globalAlpha = 1;
+    x.filter = "none";
+  });
+  return <canvas ref={ref} width={CWd} height={CHt} style={{ position: "absolute", left: -CX, top: -CT }} />;
 };
 const sp = (c: Cam, ll: Pt): Pt => { const k = 2 ** c.z; return [(wx(ll[0]) - wx(c.lon)) * k + W / 2, (wy(ll[1]) - wy(c.lat)) * k + H / 2]; };
 const spw = (c: Cam, p: Pt): Pt => { const k = 2 ** c.z; return [(p[0] - wx(c.lon)) * k + W / 2, (p[1] - wy(c.lat)) * k + H / 2]; };
@@ -936,16 +971,17 @@ export const V54: React.FC<{ silent?: boolean; at?: number }> = ({ silent, at })
       {tileA < 1 && <Sky t={t} c={c} />}
       {/* the map plane reaches far up (it recedes when tilted) but only a little below the frame: a plane edge that comes
           closer than the perspective distance renders over everything (v54 preview 1 bug) */}
-      <div style={{ position: "absolute", left: -W, top: -PT, width: 3 * W, height: PH, transform: `perspective(2000px) rotateX(${tilt}deg) rotateZ(${rot}deg)`, transformOrigin: `50% ${((PT + H / 2) / PH) * 100}%`, opacity: tileA }}>
-        <div style={{ position: "absolute", left: W, top: PT, width: W, height: H }}>
-          <div style={{ position: "absolute", left: -W, top: -PT, width: 3 * W, height: PH, background: OCEAN }} />
-          <Tiles c={c} night={night} />
-          <div style={{ position: "absolute", left: -W, top: -PT, width: 3 * W, height: PH, background: `rgba(4,14,42,${0.45 * night})` }} />
+      <div style={{ position: "absolute", left: -CX, top: -CT, width: CWd, height: CHt, overflow: "hidden", transform: `perspective(2000px) rotateX(${tilt}deg) rotateZ(${rot}deg)`, transformOrigin: `${((CX + W / 2) / CWd) * 100}% ${((CT + H / 2) / CHt) * 100}%`, opacity: tileA }}>
+        <div style={{ position: "absolute", left: CX, top: CT, width: W, height: H }}>
+          <TileCanvas c={c} night={night} />
+          <div style={{ position: "absolute", left: -CX, top: -CT, width: CWd, height: CHt, background: `rgba(4,14,42,${0.45 * night})` }} />
           <svg width={W} height={H} style={{ position: "absolute", left: 0, top: 0, overflow: "visible" }}>{ms}</svg>
           {mh}
-          <div style={{ position: "absolute", left: -W, top: -PT, width: 3 * W, height: PH, background: `rgba(6,8,12,${dim})` }} />
+          <div style={{ position: "absolute", left: -CX, top: -CT, width: CWd, height: CHt, background: `rgba(6,8,12,${dim})` }} />
         </div>
       </div>
+      {/* haze where the tilted plane meets the sky */}
+      {tilt > 0.5 && <AbsoluteFill style={{ background: `linear-gradient(180deg, rgba(10,18,32,${Math.min(1, tilt / 30)}) 0%, rgba(10,18,32,${0.6 * Math.min(1, tilt / 30)}) 9%, rgba(10,18,32,0) 24%)` }} />}
       {/* overlays drawn in the map plane but above the dim (labels must stay readable) are in mh; screen layer: */}
       <AbsoluteFill style={{ background: "radial-gradient(ellipse at 50% 46%, rgba(0,0,0,0) 52%, rgba(0,0,0,.5) 100%)" }} />
       <AbsoluteFill style={{ background: "linear-gradient(180deg, rgba(0,0,0,0) 62%, rgba(0,0,0,.5) 80%, rgba(0,0,0,.62) 100%)" }} />
