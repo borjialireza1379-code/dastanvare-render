@@ -1,6 +1,6 @@
 import { Composition } from "remotion";
-import { V54, V54_FPS, V54_FRAMES } from "./v54/Video";
+import { V55, V55_FPS, V55_FRAMES } from "./v55/Video";
 
 export const RemotionRoot: React.FC = () => (
-  <Composition id="V54-Silent" component={V54} durationInFrames={V54_FRAMES} fps={V54_FPS} width={1080} height={1920} defaultProps={{ silent: true }} />
+  <Composition id="V55-Silent" component={V55} durationInFrames={V55_FRAMES} fps={V55_FPS} width={1080} height={1920} defaultProps={{ silent: true }} />
 );
