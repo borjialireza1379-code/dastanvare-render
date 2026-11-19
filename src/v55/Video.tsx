@@ -38,8 +38,8 @@ if (typeof window !== "undefined") {
 // ---------- pictures ----------
 // the user's ChatGPT pictures (public/v55/img/<name>.png); false = an empty frame with the file name
 export const IMG: Record<string, boolean> = {
-  "01-mesa-lights": false, "02-radio-room": false, "03-ufo-photo": false, "04-lab": false,
-  "05-hybrid-tank": false, "06-tunnel-fight": false, "07-handoff": false, "08-blast-door": false,
+  "01-mesa-lights": true, "02-radio-room": true, "03-ufo-photo": true, "04-lab": true,
+  "05-hybrid-tank": true, "06-tunnel-fight": true, "07-handoff": true, "08-blast-door": true,
 };
 const hasImg = (s: string) => !!IMG[s];
 const imgUrl = (s: string) => staticFile(`v55/img/${s}.png`);
@@ -475,7 +475,7 @@ export const V55: React.FC<{ silent?: boolean; at?: number }> = ({ silent, at })
     );
     // the mesa outline (also stays for the cut-away)
     const tM = Wd(1, "کوه‌های") - 0.1;
-    const kM = ramp(t, tM, tM + 0.7) * (1 - ramp(t, tNM - 0.1, tNM + 0.2)) + win(t, ls(2) + 0.7, ls(3) + 0.3, 0.4) * 0.8 + win(t, ls(8) - 0.2, ls(9) + 0.4, 0.4) * 0.8;
+    const kM = ramp(t, tM, tM + 0.7) * (1 - ramp(t, tNM - 0.1, tNM + 0.2)) + win(t, ls(2) + 0.7, ls(3) + 0.3, 0.4) * 0.8 + win(t, ls(8) - 0.2, ls(9) + 0.4, 0.4) * 0.8 + win(t, ls(11), Wd(12, "ساختگیه"), 0.4) * 0.8;
     if (kM > 0) {
       const d = polyLL(c, MESA_LOOP);
       ms.push(<path key="mz" d={d} fill={`rgba(232,64,58,${0.1 * cl(kM)})`} stroke={RED} strokeWidth={4.5} strokeDasharray="18 10" strokeDashoffset={-t * 25} opacity={cl(kM)} />);
@@ -853,7 +853,7 @@ export const V55: React.FC<{ silent?: boolean; at?: number }> = ({ silent, at })
 
   // ============ L11–L13: the question, two answers, comment ============
   {
-    const kQ = ramp(t, ls(11) - 0.05, ls(11) + 0.1) * (1 - ramp(t, ls(12) - 0.05, ls(12) + 0.2));
+    const kQ = ramp(t, ls(11) - 0.05, ls(11) + 0.1) * (1 - ramp(t, Wd(12, "ساختگیه") - 0.5, Wd(12, "ساختگیه") - 0.2));
     if (kQ > 0) sc.push(<div key="q" style={{ position: "absolute", left: W / 2, top: 820, transform: `translate(-50%,-50%) scale(${1 + 0.9 * (1 - eout(kQ))})`, opacity: cl(kQ * 2), fontFamily: FA_T, fontWeight: 900, fontSize: 520, color: RED, lineHeight: 1, textShadow: "0 0 60px rgba(232,64,58,.55), 0 10px 40px rgba(0,0,0,.8)" }}>؟</div>);
     const shrink = ramp(t, ls(13) - 0.1, ls(13) + 0.4), gone = ramp(t, le(13) + 0.4, le(13) + 0.9);
     const card = (key: string, x: number, kk: number, title: string, sub: string, img: React.ReactNode) =>
@@ -922,8 +922,8 @@ export const V55: React.FC<{ silent?: boolean; at?: number }> = ({ silent, at })
       <Captions t={t} />
       {/* scanlines + grain: the "leaked tape" feel */}
       <AbsoluteFill style={{ background: "repeating-linear-gradient(0deg, rgba(0,0,0,.16) 0 2px, transparent 2px 5px)", opacity: 0.35, pointerEvents: "none" }} />
-      <svg width={W} height={H} style={{ position: "absolute", left: 0, top: 0, opacity: 0.09, mixBlendMode: "overlay", pointerEvents: "none" }}>
-        <filter id="gr55"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves={2} seed={Math.floor(t * 30) % 97} /><feColorMatrix type="saturate" values="0" /></filter>
+      <svg width={W} height={H} style={{ position: "absolute", left: 0, top: 0, opacity: 0.06, mixBlendMode: "overlay", pointerEvents: "none" }}>
+        <filter id="gr55"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves={2} seed={Math.floor(t * 15) % 97} /><feColorMatrix type="saturate" values="0" /></filter>
         <rect width={W} height={H} filter="url(#gr55)" />
       </svg>
       {!silent && <Html5Audio src={staticFile(AUDIO)} />}
