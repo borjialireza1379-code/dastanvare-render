@@ -38,16 +38,16 @@ if (typeof window !== "undefined") {
 // ---------- pictures ----------
 // the user's ChatGPT pictures (public/v54/img/<name>.png); false = an empty print with the file name
 export const IMG: Record<string, boolean> = {
-  "01-shore": false, "02-helicopter": false, "03-village": false, "04-night-boat": false,
-  "05-kayak": false, "06-aftermath": false, "07-food": false, "08-ship": false,
+  "01-shore": true, "02-helicopter": true, "03-village": true, "04-night-boat": true,
+  "05-kayak": true, "06-aftermath": true, "07-food": true, "08-ship": true,
 };
 const REAL = new Set(["measles", "flu"]);
 const hasImg = (s: string) => REAL.has(s) || !!IMG[s];
 const imgUrl = (s: string) => (REAL.has(s) ? staticFile(`v54/footage/${s}.jpg`) : staticFile(`v54/img/${s}.png`));
-// where each food item sits in 07-food.png (fractions of width/height) — set after the picture arrives
-const FOOD: [string, string, number, number][] = [
-  ["ماهی", "ماهی", 0.2, 0.3], ["لاک", "لاک‌پشت دریایی", 0.5, 0.3], ["گراز", "گراز وحشی", 0.8, 0.3],
-  ["خرچنگ", "خرچنگ", 0.28, 0.72], ["میوه", "میوه‌های جنگلی", 0.72, 0.72],
+// where each food item sits in 07-food.png (fractions of width/height, measured on the user's picture) + ellipse radii (px on a 1000-wide print)
+const FOOD: [string, string, number, number, number, number][] = [
+  ["ماهی", "ماهی", 0.21, 0.22, 130, 78], ["لاک", "لاک‌پشت دریایی", 0.54, 0.27, 100, 118], ["گراز", "گراز وحشی", 0.85, 0.25, 82, 118],
+  ["خرچنگ", "خرچنگ", 0.28, 0.7, 122, 100], ["میوه", "میوه‌های جنگلی", 0.66, 0.7, 120, 100],
 ];
 
 // ---------- palette ----------
@@ -169,7 +169,28 @@ const NEAR_FADE = (() => {
   const m = TL.near, f = (lat: number) => ((wy(lat) * 2 ** m.z - m.y0 * 256) / (m.rows * 256)) * 100;
   return [f(11.3), f(11.18)];
 })();
-// The map is drawn on ONE canvas the size of the map plane. (Preview 1–3 used <Img> layers tens of thousands of px wide;
+// Flat map (no tilt): one <Img> per level (preview 3 — no flicker). A big canvas redrawn every frame made Chrome
+// show stale copies of exiting prints on some frames (preview 4, 25–27 s and 31–33 s), so the canvas is only used while tilted.
+const Tiles: React.FC<{ c: Cam; night: number }> = ({ c, night }) => {
+  const lv: [string, number, boolean][] = [
+    ["wide", 1, c.z < 9.5], ["region", ramp(c.z, 7.0, 7.5), c.z > 6.9 && c.z < 13], ["near", ramp(c.z, 9.7, 10.2), c.z > 9.6], ["island", ramp(c.z, 12.0, 12.5), c.z > 11.9],
+  ];
+  const filter = `saturate(${1.05 - 0.45 * night}) contrast(1.06) brightness(${0.97 - 0.42 * night})`;
+  return (
+    <>
+      {lv.map(([name, o, show]) => {
+        if (!show || o <= 0) return null;
+        const m = TL[name], k = 2 ** (c.z - m.z);
+        const mask = name === "near" ? `linear-gradient(to bottom, #000 ${NEAR_FADE[0]}%, transparent ${NEAR_FADE[1]}%)` : undefined;
+        return (
+          <Img key={name} src={staticFile(`v54/${name}.jpg`)}
+            style={{ position: "absolute", left: (m.x0 * 256 - wx(c.lon) * 2 ** m.z) * k + W / 2, top: (m.y0 * 256 - wy(c.lat) * 2 ** m.z) * k + H / 2, width: m.cols * 256 * k, height: m.rows * 256 * k, maxWidth: "none", opacity: o, filter, WebkitMaskImage: mask, maskImage: mask }} />
+        );
+      })}
+    </>
+  );
+};
+// Tilted map: drawn on ONE canvas the size of the map plane. (Preview 1–3 used <Img> layers tens of thousands of px wide;
 // inside the 3D-tilted plane Chrome then dropped every overlay drawn after it: captions, logo, prints.)
 // Map plane around the frame: CX left/right, CT above, CB below — enough for a 44° tilt at perspective 2000.
 const CX = 560, CT = 1800, CB = 200, CWd = W + 2 * CX, CHt = CT + H + CB;
@@ -348,7 +369,7 @@ const Clip: React.FC<{ x: number; y: number; rot?: number }> = ({ x, y, rot = 0 
   </svg>
 );
 // photo print: white border, clip, tag, "reconstruction" mark for AI pictures; drops in, exits downward
-const Print: React.FC<{ src: string; x: number; y: number; w: number; k: number; out?: number; t: number; rot?: number; ar?: number; tag?: string; recon?: boolean; focus?: string; shake?: number; children?: React.ReactNode }> = ({ src, x, y, w, k, out = 0, t, rot = 0, ar = 3 / 2, tag, recon = true, focus = "50% 50%", shake = 0, children }) => {
+const Print: React.FC<{ src: string; x: number; y: number; w: number; k: number; out?: number; t: number; rot?: number; ar?: number; tag?: string; recon?: boolean; focus?: string; shake?: number; children?: React.ReactNode }> = ({ src, x, y, w, k, out = 0, t, rot = 0, ar = 16 / 9, tag, recon = true, focus = "50% 50%", shake = 0, children }) => {
   if (k <= 0.01 || out >= 0.999) return null;
   const h = w / ar, b = 14, bb = tag ? 54 : 14;
   const ke = eout(cl(k));
@@ -423,6 +444,7 @@ export const V54: React.FC<{ silent?: boolean; at?: number }> = ({ silent, at })
   const t = (at ?? cur) / V54_FPS;
   const c = camAt(t);
   const [tilt, rot] = tiltAt(t);
+  const tilted = Math.abs(tilt) > 0.02 || Math.abs(rot) > 0.02;
   const k = 2 ** c.z;
   const P = (ll: Pt) => sp(c, ll);
   const isl = P(CL);
@@ -782,21 +804,21 @@ export const V54: React.FC<{ silent?: boolean; at?: number }> = ({ silent, at })
     });
     // L15: the food evidence board
     const kF = ramp(t, ls(15) - 0.25, ls(15) + 0.2), oF = ramp(t, le(15) + 0.15, le(15) + 0.5);
-    const PW = 1000, PH = PW / 1.5;
+    const PW = 1000, PH = PW / (16 / 9);
     sc.push(
       <Print key="food" src="07-food" x={W / 2} y={760} w={PW} k={kF} out={oF} t={t} rot={-1} tag="غذای اصلی سنتینلی‌ها">
         <svg width={PW} height={PH} style={{ position: "absolute", left: 0, top: 0 }}>
-          {FOOD.map(([key, , fx, fy], i) => {
+          {FOOD.map(([key, , fx, fy, rx, ry], i) => {
             const tw = Wd(15, key);
             const pp = ramp(t, tw - 0.1, tw + 0.3);
             if (pp <= 0) return null;
-            return <ellipse key={i} cx={fx * PW} cy={fy * PH} rx={120} ry={95} fill="none" stroke={RED} strokeWidth={6} pathLength={1} strokeDasharray={`${pp} 2`} transform={`rotate(${-8 + i * 5} ${fx * PW} ${fy * PH})`} />;
+            return <ellipse key={i} cx={fx * PW} cy={fy * PH} rx={rx} ry={ry} fill="none" stroke={RED} strokeWidth={6} pathLength={1} strokeDasharray={`${pp} 2`} transform={`rotate(${-8 + i * 5} ${fx * PW} ${fy * PH})`} />;
           })}
         </svg>
-        {FOOD.map(([key, lab, fx, fy], i) => {
+        {FOOD.map(([key, lab, fx, fy, , ry], i) => {
           const tw = Wd(15, key), pp = ramp(t, tw, tw + 0.25);
           if (pp <= 0) return null;
-          return <div key={"ft" + i} style={{ position: "absolute", left: fx * PW, top: fy * PH + 112, transform: `translate(-50%,-50%) scale(${0.8 + 0.2 * pp})`, opacity: pp, padding: "3px 14px 7px", background: CREAM, color: INK, fontFamily: FA_TY, fontSize: 28, whiteSpace: "nowrap", direction: "rtl", boxShadow: "0 3px 8px rgba(0,0,0,.4)" }}>{fa(i + 1)} ـ {lab}</div>;
+          return <div key={"ft" + i} style={{ position: "absolute", left: fx * PW, top: Math.min(PH - 26, fy * PH + ry + 4), transform: `translate(-50%,-50%) scale(${0.8 + 0.2 * pp})`, opacity: pp, padding: "3px 14px 7px", background: CREAM, color: INK, fontFamily: FA_TY, fontSize: 28, whiteSpace: "nowrap", direction: "rtl", boxShadow: "0 3px 8px rgba(0,0,0,.4)" }}>{fa(i + 1)} ـ {lab}</div>;
         })}
       </Print>,
     );
@@ -816,7 +838,7 @@ export const V54: React.FC<{ silent?: boolean; at?: number }> = ({ silent, at })
         const on = ramp(t, Wd(16, "تمام") - 0.1 + ((i + 0.5) / 5) * (le(16) - 0.3 - Wd(16, "تمام")), Wd(16, "تمام") + 0.15 + ((i + 0.5) / 5) * (le(16) - 0.3 - Wd(16, "تمام")));
         const x = isl[0] + Math.cos(a) * R, y = isl[1] + Math.sin(a) * R;
         mh.push(
-          <div key={"md" + i} style={{ position: "absolute", left: x - 62, top: y - 62, width: 124, height: 124, borderRadius: 62, overflow: "hidden", border: `5px solid ${CREAM}`, boxShadow: "0 8px 20px rgba(0,0,0,.6)", opacity: kG * (0.25 + 0.75 * on), transform: `scale(${0.75 + 0.25 * on})`, background: hasImg("07-food") ? `url(${imgUrl("07-food")}) ${-(fx * 620 - 57)}px ${-(fy * 413 - 57)}px / 620px 413px no-repeat` : "rgba(12,9,7,.9)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div key={"md" + i} style={{ position: "absolute", left: x - 62, top: y - 62, width: 124, height: 124, borderRadius: 62, overflow: "hidden", border: `5px solid ${CREAM}`, boxShadow: "0 8px 20px rgba(0,0,0,.6)", opacity: kG * (0.25 + 0.75 * on), transform: `scale(${0.75 + 0.25 * on})`, background: hasImg("07-food") ? `url(${imgUrl("07-food")}) ${-(fx * 560 - 57)}px ${-(fy * 315 - 57)}px / 560px 315px no-repeat` : "rgba(12,9,7,.9)", display: "flex", alignItems: "center", justifyContent: "center" }}>
             {!hasImg("07-food") && <div style={{ fontFamily: FA_UI, fontWeight: 700, fontSize: 20, color: CREAM, textAlign: "center", direction: "rtl", padding: 6 }}>{lab}</div>}
           </div>,
         );
@@ -943,7 +965,7 @@ export const V54: React.FC<{ silent?: boolean; at?: number }> = ({ silent, at })
     sc.push(card("c1", 790, ramp(t, Wd(22, "بی‌خبره") - 0.35, Wd(22, "بی‌خبره") + 0.1), "بی‌خبر", "از دنیای مدرن؟",
       <div style={{ position: "absolute", inset: 0, background: `url(${staticFile("v54/island.jpg")}) ${cxp}% ${cyp}% / 260% auto no-repeat`, transform: `scale(${1 + 0.04 * Math.sin(t * 0.6)})` }} />));
     sc.push(card("c2", 290, ramp(t, Wd(22, "آگاهانه") - 0.3, Wd(22, "آگاهانه") + 0.15), "آگاهانه", "دوری از دنیای ما؟",
-      hasImg("08-ship") ? <Img src={imgUrl("08-ship")} style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: MONO, fontSize: 24, color: "rgba(255,255,255,.45)" }}>08-ship.png</div>));
+      hasImg("08-ship") ? <Img src={imgUrl("08-ship")} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "66% 50%", transform: `scale(${1.04 + 0.03 * Math.sin(t * 0.6)})` }} /> : <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: MONO, fontSize: 24, color: "rgba(255,255,255,.45)" }}>08-ship.png</div>));
     const kO = ramp(t, Wd(22, "یا") - 0.1, Wd(22, "یا") + 0.15) * (1 - gone);
     if (kO > 0 && t > Wd(22, "بی‌خبره")) sc.push(<div key="or" style={{ position: "absolute", left: W / 2 - 60, top: 750 - 160 * shrink, width: 120, height: 120, borderRadius: 60, background: RED, border: `5px solid ${CREAM}`, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: FA_T, fontWeight: 900, fontSize: 56, color: CREAM, transform: `scale(${back(cl(kO)) * (1 - 0.18 * shrink)})`, boxShadow: "0 10px 30px rgba(0,0,0,.6)" }}>یا</div>);
     const kC = ramp(t, ls(23) - 0.1, ls(23) + 0.35);
@@ -971,9 +993,9 @@ export const V54: React.FC<{ silent?: boolean; at?: number }> = ({ silent, at })
       {tileA < 1 && <Sky t={t} c={c} />}
       {/* the map plane reaches far up (it recedes when tilted) but only a little below the frame: a plane edge that comes
           closer than the perspective distance renders over everything (v54 preview 1 bug) */}
-      <div style={{ position: "absolute", left: -CX, top: -CT, width: CWd, height: CHt, overflow: "hidden", transform: `perspective(2000px) rotateX(${tilt}deg) rotateZ(${rot}deg)`, transformOrigin: `${((CX + W / 2) / CWd) * 100}% ${((CT + H / 2) / CHt) * 100}%`, opacity: tileA }}>
+      <div style={{ position: "absolute", left: -CX, top: -CT, width: CWd, height: CHt, overflow: "hidden", transform: tilted ? `perspective(2000px) rotateX(${tilt}deg) rotateZ(${rot}deg)` : "none", transformOrigin: `${((CX + W / 2) / CWd) * 100}% ${((CT + H / 2) / CHt) * 100}%`, opacity: tileA, background: OCEAN }}>
         <div style={{ position: "absolute", left: CX, top: CT, width: W, height: H }}>
-          <TileCanvas c={c} night={night} />
+          {tilted ? <TileCanvas c={c} night={night} /> : <Tiles c={c} night={night} />}
           <div style={{ position: "absolute", left: -CX, top: -CT, width: CWd, height: CHt, background: `rgba(4,14,42,${0.45 * night})` }} />
           <svg width={W} height={H} style={{ position: "absolute", left: 0, top: 0, overflow: "visible" }}>{ms}</svg>
           {mh}
