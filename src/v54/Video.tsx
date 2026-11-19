@@ -18,6 +18,7 @@ const LINES = (vo as unknown as { lines: Line[] }).lines;
 const TOTAL = (vo as { total: number }).total;
 export const V54_FRAMES = Math.ceil((TOTAL + 0.3) * V54_FPS);
 const W = 1080, H = 1920;
+const PT = 2.2 * H, PH = PT + H + 0.3 * H; // map plane: extends 2.2 frames above the frame, 0.3 below
 
 // ---------- fonts ----------
 const FA_T = "Estedad", FA_UI = "Vazirmatn", FA_TY = "VazirCode", MONO = "JBMonoV54";
@@ -106,7 +107,7 @@ const KEYS: Key[] = [
   { t: le(1), p: [CL[0] + 0.003, CL[1] - 0.002], z: 13.6 },
   { t: le(3) + 0.1, p: CL, z: 13.85 },
   { t: ls(5) - 0.05, p: CL, z: 13.25 },
-  { t: ls(5) + 1.3, p: [84.6, 15.4], z: 6.05 },
+  { t: ls(5) + 1.0, p: [84.6, 15.4], z: 6.05 },
   { t: ls(6) + 0.05, p: [85.2, 15.1], z: 6.15 },
   { t: ls(6) + 1.5, p: CL, z: 13.45 },
   { t: le(7), p: CL, z: 13.8 },
@@ -448,7 +449,7 @@ export const V54: React.FC<{ silent?: boolean; at?: number }> = ({ silent, at })
         const r = 2.4 - 1.22 * pApp + 0.9 * back;
         const pos = P(fromC(ang, r));
         const hit = t >= tImp;
-        ms.push(<Boat key={"b" + j} p={pos} ang={ang + Math.PI + (back > 0 ? Math.PI * back : 0)} s={1.25} color={hit ? RED2 : CREAM} k={bA} wake={1 - pApp * 0.7 + back} />);
+        ms.push(<Boat key={"b" + j} p={pos} ang={ang + Math.PI + (back > 0 ? Math.PI * back : 0)} s={2.1} color={hit ? RED2 : CREAM} k={bA} wake={1 - pApp * 0.7 + back} />);
         const from = P(fromC(ang + 0.1 * (j - 1), 0.62));
         ms.push(<FlyArrow key={"ba" + j} a={from} b={pos} p={lin(t, tHit + 0.12 * j, tImp)} len={60} bend={0.18} />);
         const fl = lin(t, tImp, tImp + 0.5);
@@ -661,7 +662,7 @@ export const V54: React.FC<{ silent?: boolean; at?: number }> = ({ silent, at })
           <path d={`M${pb[0]} ${pb[1]}Q${mx} ${my} ${ld[0]} ${ld[1]}`} fill="none" stroke={CREAM} strokeWidth={5} strokeDasharray="14 12" opacity={0.9} mask="url(#rm54)" />
           <mask id="rm54"><path d={`M${pb[0]} ${pb[1]}Q${mx} ${my} ${ld[0]} ${ld[1]}`} fill="none" stroke="#fff" strokeWidth={14} pathLength={1} strokeDasharray={`${pr} 2`} /></mask>
           <circle cx={pb[0]} cy={pb[1]} r={11} fill={CREAM} stroke="#000" strokeWidth={3} />
-          {pr > 0 && pr < 1 && <Boat p={bp} ang={Math.atan2(bp[1] - bq[1], bp[0] - bq[0])} s={1.3} k={1} />}
+          {pr > 0 && pr < 1 && <Boat p={bp} ang={Math.atan2(bp[1] - bq[1], bp[0] - bq[0])} s={2} k={1} />}
         </g>,
       );
       mh.push(<div key="pbL" style={{ position: "absolute", left: pb[0] + 22, top: pb[1] - 4, transform: "translate(0,-50%)", opacity: kRt, fontFamily: FA_UI, fontWeight: 900, fontSize: 34, color: CREAM, textShadow: SH, whiteSpace: "nowrap" }}>پورت‌بلر</div>);
@@ -683,13 +684,13 @@ export const V54: React.FC<{ silent?: boolean; at?: number }> = ({ silent, at })
       const pk = eout(lin(t, ls(11) - 0.8, ls(11) + 0.6));
       const kp: Pt = [outw[0] + (ld[0] - outw[0]) * pk, outw[1] + (ld[1] - outw[1]) * pk];
       const dead = t >= Wd(11, "کشته");
-      if (t < ls(12) + 0.2) ms.push(<g key="kay" opacity={kK}><Boat p={kp} ang={Math.atan2(ld[1] - outw[1], ld[0] - outw[0])} s={0.9} color={dead ? RED2 : "#F2D35B"} wake={1 - pk} /></g>);
+      if (t < ls(12) + 0.2) ms.push(<g key="kay" opacity={kK}><Boat p={kp} ang={Math.atan2(ld[1] - outw[1], ld[0] - outw[0])} s={1.5} color={dead ? RED2 : "#F2D35B"} wake={1 - pk} /></g>);
       const tA = Wd(11, "حمله") - 0.15;
       for (let j = 0; j < 8; j++) {
         const src = P(lerpW(LAND, CL, 0.22 + rnd(j + 20) * 0.18));
         const a: Pt = [src[0] + (rnd(j + 30) - 0.5) * 260, src[1] + (rnd(j + 40) - 0.5) * 260];
         const b: Pt = [ld[0] + (rnd(j + 50) - 0.5) * 110, ld[1] + (rnd(j + 60) - 0.5) * 110];
-        ms.push(<FlyArrow key={"aa" + j} a={a} b={b} p={lin(t, tA + j * 0.09, tA + j * 0.09 + 0.5)} len={46} bend={0.2} stick o={1 - ramp(t, ls(12) + 0.4, ls(12) + 0.9)} />);
+        ms.push(<FlyArrow key={"aa" + j} a={a} b={b} p={lin(t, tA + j * 0.09, tA + j * 0.09 + 0.5)} len={105} bend={0.2} stick o={1 - ramp(t, ls(12) + 0.4, ls(12) + 0.9)} />);
       }
       const gl = win(t, tA + 0.45, ls(12) + 0.6, 0.3);
       if (gl > 0) ms.push(<circle key="glow" cx={ld[0]} cy={ld[1]} r={140} fill="url(#rg54)" opacity={gl * (0.75 + 0.25 * Math.sin(t * 8))} />);
@@ -712,7 +713,7 @@ export const V54: React.FC<{ silent?: boolean; at?: number }> = ({ silent, at })
       const app = eout(lin(t, ls(12) + 0.6, tTurn)), ret = eio(lin(t, tTurn + 0.2, le(12) + 0.5));
       const r = 3.3 - 1.25 * app + 1.3 * ret;
       const bp = P(fromC(0.05, r));
-      ms.push(<Boat key="pol" p={bp} ang={Math.PI + Math.PI * ret} s={1.5} k={kPb} light={Math.sin(t * 12) > 0 ? 1 : 0} wake={app < 1 ? 1 - app : ret > 0 ? 1 : 0.2} />);
+      ms.push(<Boat key="pol" p={bp} ang={Math.PI + Math.PI * ret} s={2.1} k={kPb} light={Math.sin(t * 12) > 0 ? 1 : 0} wake={app < 1 ? 1 - app : ret > 0 ? 1 : 0.2} />);
       sc.push(<Chip key="pol2" x={Math.min(900, bp[0])} y={bp[1] - 80} k={ramp(t, Wd(12, "فراهم") - 0.3, Wd(12, "فراهم")) * kPb} size={34} color={RED2} border={RED}>بازگردانده نشد</Chip>);
     }
   }
@@ -735,12 +736,12 @@ export const V54: React.FC<{ silent?: boolean; at?: number }> = ({ silent, at })
       const p = P(ll);
       mh.push(
         <div key={"pin" + i} style={{ position: "absolute", left: p[0], top: p[1], transform: `translate(-50%,-100%) scale(${kk})`, transformOrigin: "50% 100%", display: "flex", flexDirection: "column", alignItems: "center" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 16px 10px", background: "rgba(12,9,7,.9)", border: `2px solid ${ic === "fish" ? "rgba(140,210,220,.9)" : "rgba(170,210,130,.9)"}`, direction: "rtl" }}>
-            <Icon name={ic} size={44} />
-            <div style={{ fontFamily: FA_UI, fontWeight: 900, fontSize: 34, color: CREAM, whiteSpace: "nowrap" }}>{lab}</div>
+          <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 22px 14px", background: "rgba(12,9,7,.92)", border: `3px solid ${ic === "fish" ? "rgba(140,210,220,.95)" : "rgba(170,210,130,.95)"}`, direction: "rtl", boxShadow: "0 10px 24px rgba(0,0,0,.6)" }}>
+            <Icon name={ic} size={64} sw={3} />
+            <div style={{ fontFamily: FA_UI, fontWeight: 900, fontSize: 50, color: CREAM, whiteSpace: "nowrap" }}>{lab}</div>
           </div>
-          <div style={{ width: 3, height: 40, background: CREAM }} />
-          <div style={{ width: 14, height: 14, borderRadius: 7, background: CREAM, border: "3px solid #000", marginTop: -4 }} />
+          <div style={{ width: 4, height: 60, background: CREAM }} />
+          <div style={{ width: 20, height: 20, borderRadius: 10, background: CREAM, border: "4px solid #000", marginTop: -5 }} />
         </div>,
       );
     });
@@ -933,14 +934,16 @@ export const V54: React.FC<{ silent?: boolean; at?: number }> = ({ silent, at })
   return (
     <AbsoluteFill style={{ background: "radial-gradient(ellipse at 50% 40%, #13243C 0%, #070C16 70%)", overflow: "hidden" }}>
       {tileA < 1 && <Sky t={t} c={c} />}
-      <div style={{ position: "absolute", left: -W, top: -H, width: 3 * W, height: 3 * H, transform: `perspective(1700px) rotateX(${tilt}deg) rotateZ(${rot}deg)`, transformOrigin: "50% 50%", opacity: tileA }}>
-        <div style={{ position: "absolute", left: W, top: H, width: W, height: H }}>
-          <div style={{ position: "absolute", left: -W, top: -H, width: 3 * W, height: 3 * H, background: OCEAN }} />
+      {/* the map plane reaches far up (it recedes when tilted) but only a little below the frame: a plane edge that comes
+          closer than the perspective distance renders over everything (v54 preview 1 bug) */}
+      <div style={{ position: "absolute", left: -W, top: -PT, width: 3 * W, height: PH, transform: `perspective(2000px) rotateX(${tilt}deg) rotateZ(${rot}deg)`, transformOrigin: `50% ${((PT + H / 2) / PH) * 100}%`, opacity: tileA }}>
+        <div style={{ position: "absolute", left: W, top: PT, width: W, height: H }}>
+          <div style={{ position: "absolute", left: -W, top: -PT, width: 3 * W, height: PH, background: OCEAN }} />
           <Tiles c={c} night={night} />
-          <div style={{ position: "absolute", left: -W, top: -H, width: 3 * W, height: 3 * H, background: `rgba(4,14,42,${0.45 * night})` }} />
+          <div style={{ position: "absolute", left: -W, top: -PT, width: 3 * W, height: PH, background: `rgba(4,14,42,${0.45 * night})` }} />
           <svg width={W} height={H} style={{ position: "absolute", left: 0, top: 0, overflow: "visible" }}>{ms}</svg>
           {mh}
-          <div style={{ position: "absolute", left: -W, top: -H, width: 3 * W, height: 3 * H, background: `rgba(6,8,12,${dim})` }} />
+          <div style={{ position: "absolute", left: -W, top: -PT, width: 3 * W, height: PH, background: `rgba(6,8,12,${dim})` }} />
         </div>
       </div>
       {/* overlays drawn in the map plane but above the dim (labels must stay readable) are in mh; screen layer: */}
